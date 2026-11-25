@@ -35,17 +35,38 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
 .mixed-compare{margin-top:8px;padding-top:7px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px 10px;font-size:12px;color:var(--muted)}.mixed-compare strong{color:var(--ink);font-size:13px;font-variant-numeric:tabular-nums}.mixed-small{flex-basis:100%;font-size:11px;color:var(--muted)}
 
 .hello-km-block{margin-top:15px;padding-top:14px;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,290px) minmax(0,1fr);gap:16px;align-items:center}.hello-km-block .field label{font-weight:700}.hello-km-help{color:var(--muted);font-size:12px;line-height:1.5}.hello-km-error{font-size:12px;color:#a34b0b;margin-top:5px}.hello-km-error[hidden]{display:none}@media(max-width:600px){.hello-km-block{grid-template-columns:1fr;gap:5px;margin-top:12px;padding-top:12px}}
+
+.route-panel{margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.route-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+.route-head label{font-size:13px;font-weight:700}
+.route-head span,.route-attribution{font-size:11px;color:var(--muted)}
+.route-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.route-entry input{width:100%;min-width:0;height:44px;padding:10px 12px;border:1px solid #c9d5e1;border-radius:10px;background:#fff;color:var(--ink);font:inherit}
+.route-entry input:focus{outline:2px solid #68b6ae;border-color:#68b6ae}
+.route-entry button{border:1px solid var(--green);border-radius:10px;background:var(--green);color:#fff;padding:0 16px;font-weight:650}
+.route-entry button:disabled{opacity:.6;cursor:wait}
+.route-status{font-size:12px;line-height:1.45;color:var(--muted);margin-top:7px}
+.route-status.success{color:#08774f}
+.route-status.error{color:#a34b0b}
+.route-attribution{margin-top:3px;line-height:1.4}
+.route-attribution a{color:inherit;text-decoration:underline;text-decoration-color:#cbd5e1}
+.hello-km-block{grid-template-columns:minmax(0,290px)}
+@media(max-width:600px){.route-entry{grid-template-columns:minmax(0,1fr) auto}.route-entry button{padding:0 12px}}
 </style></head><body><div class="wrap"><header><div><h1>Anytime <span style="color:#93a2b5">vs</span> Hello</h1></div><div class="badgetop" id="dataStatus" title="Hello: официальный сайт. Anytime: публичная проверка и ручное подтверждение полной тарифной матрицы.">Данные: 23.11.2026 · резервная база</div></header>
-<div class="panel"><div class="formgrid">
+<div class="panel"><section class="route-panel" aria-label="Маршрут">
+ <div class="route-head"><label for="routeUrl">Маршрут</label><span>Ссылка на Яндекс Карты</span></div>
+ <div class="route-entry"><input id="routeUrl" type="url" inputmode="url" placeholder="Вставь ссылку на маршрут" autocomplete="off"><button id="routeCalculate" type="button">Рассчитать</button></div>
+ <div id="routeStatus" class="route-status" aria-live="polite">Ссылка необязательна. По ней автоматически заполнятся «Время в дороге» и «Hello: километраж для абонемента». Общий пробег и время аренды вводи вручную.</div>
+ <div class="route-attribution">Расчёт дорог: <a href="https://project-osrm.org/" target="_blank" rel="noopener">OSRM</a> · данные <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap (ODbL)</a>. Результат может отличаться от Яндекс Карт.</div>
+</section>
+<div class="formgrid">
 <div class="field"><label for="km">Километров</label><input id="km" type="number" step="1" min="0" max="20000" value="30"><small>Общий пробег</small></div>
 <fieldset class="field timefield"><legend>Время аренды</legend><div class="timepair"><div><input id="hours" aria-label="Время аренды — часы" type="number" step="1" min="0" max="720" value="2"><small>часы</small></div><div><input id="minutes" aria-label="Время аренды — минуты" type="number" step="1" min="0" max="59" value="0"><small>минуты</small></div></div></fieldset>
 <fieldset class="field timefield"><legend>Время в дороге</legend><div class="timepair"><div><input id="driveHours" aria-label="Время в дороге — часы" type="number" step="1" min="0" max="720" value="1"><small>часы</small></div><div><input id="driveMinutes" aria-label="Время в дороге — минуты" type="number" step="1" min="0" max="59" value="30"><small>минуты</small></div></div></fieldset>
 <div class="field waiting"><label for="parking">Ожидание</label><output id="parking" aria-live="polite" for="hours minutes driveHours driveMinutes">0 ч 30 мин</output><small>Аренда − время в дороге</small></div>
-</div><section class="hello-km-block"><div class="field"><label for="helloPackageKm">Hello: километраж для абонемента</label><input id="helloPackageKm" type="number" inputmode="decimal" step="any" min="0" max="30" value="0" aria-describedby="helloKmHelp helloKmError"><div id="helloKmError" class="hello-km-error" aria-live="polite" hidden></div></div><div class="hello-km-help" id="helloKmHelp">Километры между местом 1 и последним местом (км). Это часть общего пробега, не дополнительный пробег. Учитывается только при комбинированном тарифе Hello.</div></section><div class="controls"><button class="chip active" data-provider="all">Все сервисы</button><button class="chip" data-provider="Anytime">Anytime</button><button class="chip" data-provider="Hello">Hello</button><label class="checkbox"><input id="verified" type="checkbox">Только расчёты с подтверждёнными параметрами</label><button id="reset" class="btnsecondary" style="margin-left:auto">Сбросить</button></div>
+</div><section class="hello-km-block"><div class="field"><label for="helloPackageKm">Hello: километраж для абонемента</label><input id="helloPackageKm" type="number" inputmode="decimal" step="any" min="0" max="30" value="0" aria-describedby="helloKmError"><div id="helloKmError" class="hello-km-error" aria-live="polite" hidden></div></div></section><div class="controls"><button class="chip active" data-provider="all">Все сервисы</button><button class="chip" data-provider="Anytime">Anytime</button><button class="chip" data-provider="Hello">Hello</button><button id="reset" class="btnsecondary" style="margin-left:auto">Сбросить</button></div>
 </div>
 <div id="warning" class="warnbox" style="display:none"></div><div class="summary" aria-live="polite"><h2 id="count">Подбираем варианты...</h2><div id="grossPrice" class="gross-price" hidden></div><div id="winningModel" class="winning-model" hidden></div><div id="winningTariff" class="winning-tariff" hidden></div><div id="paymentNote" class="payment-note" hidden></div><div id="trip" class="muted"></div></div><div id="results" class="results"></div>
-<div class="info"><details><summary>Условия тарифов и бонусов</summary><p><b>Hello:</b> на минутном тарифе оплачиваются только минуты движения и стоянки, пробег включён. Абонементы оплачиваются по фиксированной цене за время + стоимость каждого километра по тарифу автомобиля; режим стоянки уже включён, отдельной платы за ожидание нет. При длительном ожидании абонемент может оказаться выгоднее, а при постоянном движении стоит сравнить его с минутным тарифом. Для обычного абонемента учитываются пакеты, покрывающие всю аренду. Комбинированный сценарий автоматически сравнивается для каждой модели: время в дороге (от старта до места 1 и от последнего места до старта) оплачивается по минутному тарифу. Оставшееся время («Ожидание», включая поездки между местами) покрывается абонементом на 3, 6 или 9 часов. Введённый километраж внутри абонемента оплачивается отдельно по ставке модели, без повторной оплаты минут движения в этот период. Если средняя часть маршрута длиннее абонемента, расчёт предполагает, что весь указанный пробег пришёлся на время действия абонемента, а оставшееся время — стоянка по минутной ставке. Если средняя часть короче, абонемент оплачивается полностью; расчёт предполагает возможность досрочно перейти на минутный тариф перед обратной поездкой. Покупка абонемента в ходе аренды и досрочный переход на минутный тариф не подтверждены; проверь их в приложении Hello. Поэтому комбинированные варианты являются условными и исключаются фильтром подтверждённых параметров.</p><p><b>Anytime:</b> специальные пакеты «1+1», «Свободный 24» и «Свободный 48» + весь пробег по указанной ставке. Часовые и дневной конструкторы: цена выбранного пакета времени и километров + перепробег + перерасход времени. Сначала считаются все доступные в базе комбинации, включая более продолжительный пакет с нужным километражом. Время ожидания внутри пакета включено; при перерасходе используется приблизительное распределение минут между движением и стоянкой в той же пропорции, что во время поездки.</p><p><b>Бонусы Anytime:</b> по заданному условию после поездки начисляется 10% её стоимости бонусами в приложении. Сумма к оплате не уменьшается: итоговая стоимость в сравнении — условная стоимость за вычетом будущих бонусов, если их удастся использовать. Для Hello отдельный бонус или кешбэк не заложен в исходной версии.</p><p><b>Обязательное ограничение:</b> поминутный тариф Anytime с пробегом не включён в итоговый рейтинг, поскольку по присланным кадрам не удалось достоверно определить, как в нём учитывается километраж. Для поездки без пробега минута учитывается. Цены дневных конструкторов Anytime для 2–5 суток отсутствуют, поэтому для аренды более 48 часов сравнение с Anytime неполное.</p></details>
-<details><summary>Источники и состояние данных</summary><p><b>Anytime:</b> базовая матрица подтверждена видео и скриншотами приложения от 23.11.2026. Ежедневная автоматическая проверка публичных страниц используется только для поиска расхождений и новых моделей; сторонние значения не подменяют полную матрицу тарифов приложения. Изменения вносятся после проверки новых видео/скриншотов.</p><p><b>Hello:</b> официальный каталог <a href="https://hello.by/cars" target="_blank" rel="noopener">hello.by/cars</a>, профиль резидента Беларуси со стажем более 1 года. Для каждой модели в деталях есть ссылка на её официальный тариф. Скидки включены в опубликованные цены минутных тарифов, не применяются повторно.</p></details><details><summary>Почему иногда цена ориентировочная?</summary><p>Часовые тарифы Anytime в приложении иногда показывают округлённую стоимость одного часа и километра. Например, точные суммы могут немного отличаться от результата умножения двух чисел, округлённых до копеек. При наличии видеоснимка конечной суммы используется именно она. При отсутствии — приблизительный расчёт. Также приблизительно распределяется время перерасхода, если неизвестно, в каком режиме автомобиль находился после окончания пакета.</p><p>Возможны персональные скидки, изменение тарифа по времени суток, ограничения на бронирование, страхование или специальные предложения, которые в эти данные не включены.</p></details></div>
 <div class="foot">Автообновление доступно при открытии калькулятора через опубликованную веб-ссылку. Локальный HTML использует встроенную резервную базу. Калькулятор не бронирует автомобиль.</div></div>
 <script>
 'use strict';
@@ -1112,6 +1133,77 @@ function helloOptions(v,t,distance,stop,includeMixed=true,packageKm=0){
  return options;
 }
 const timeText=m=>[Math.floor(m/60)?`${Math.floor(m/60)} ч`:'',m%60?`${m%60} мин`:''].filter(Boolean).join(' ')||'0 ч';
+
+const ROUTE_STATUS_DEFAULT='Ссылка необязательна. По ней автоматически заполнятся «Время в дороге» и «Hello: километраж для абонемента». Общий пробег и время аренды вводи вручную.';
+let routeRequestId=0,routeInFlightUrl='',lastAppliedRouteLink='',lastRouteRequestAt=0;
+function parseYandexRouteLink(raw){
+ let url;
+ try{url=new URL(raw.trim());}catch(error){throw new Error('Вставь корректную ссылку на маршрут Яндекс Карт.');}
+ const host=url.hostname.toLowerCase();
+ const domains=['yandex.ru','yandex.com','yandex.by','yandex.kz','yandex.uz','yandex.com.tr'];
+ if(!domains.some(domain=>host===domain||host.endsWith('.'+domain)))throw new Error('Нужна ссылка именно на Яндекс Карты.');
+ const routeText=url.searchParams.get('rtext');
+ if(!routeText)throw new Error('В ссылке не найдены точки маршрута. Скопируй ссылку через «Поделиться» в Яндекс Картах с параметром rtext.');
+ const rawPoints=routeText.split('~').map(value=>value.trim()).filter(Boolean);
+ if(rawPoints.length<2)throw new Error('В маршруте должно быть не менее двух точек.');
+ if(rawPoints.length>25)throw new Error('Для автоматического расчёта поддерживается до 25 точек маршрута.');
+ const points=rawPoints.map(value=>{
+  const match=value.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+  if(!match)throw new Error('В ссылке должны быть координаты всех точек. Используй ссылку Яндекс Карт с координатами в параметре rtext.');
+  const lat=Number(match[1]),lon=Number(match[2]);
+  if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat < -90||lat > 90||lon < -180||lon > 180)throw new Error('В ссылке обнаружены некорректные координаты.');
+  return {lat:lat,lon:lon};
+ });
+ return points;
+}
+async function calculateRouteFromYandexLink(){
+ const raw=$('routeUrl').value.trim(),status=$('routeStatus'),button=$('routeCalculate');
+ if(!raw){status.textContent=ROUTE_STATUS_DEFAULT;status.className='route-status';return;}
+ if(raw===lastAppliedRouteLink||raw===routeInFlightUrl)return;
+ const requestId=++routeRequestId;
+ routeInFlightUrl=raw;
+ button.disabled=true;button.textContent='Расчёт…';
+ status.className='route-status';status.textContent='Рассчитываю участки маршрута…';
+ try{
+  const points=parseYandexRouteLink(raw);
+  const waitMs=Math.max(0,1000-(Date.now()-lastRouteRequestAt));
+  if(waitMs)await new Promise(resolve=>setTimeout(resolve,waitMs));
+  if(requestId!==routeRequestId)return;
+  lastRouteRequestAt=Date.now();
+  const coordinates=points.map(point=>point.lon+','+point.lat).join(';');
+  const endpoint='https://router.project-osrm.org/route/v1/driving/'+coordinates+'?overview=false&steps=false&alternatives=false';
+  const response=await fetch(endpoint,{cache:'no-store'});
+  if(!response.ok)throw new Error('Сервис расчёта маршрута недоступен (HTTP '+response.status+').');
+  const data=await response.json();
+  if(data.code!=='Ok'||!data.routes||!data.routes.length)throw new Error('Не удалось построить маршрут по координатам из ссылки.');
+  const route=data.routes[0],legs=route.legs;
+  if(!legs||legs.length!==points.length-1||!legs.length)throw new Error('Сервис не вернул расстояния по всем участкам маршрута.');
+  const first=legs[0],last=legs[legs.length-1];
+  const outerDistance=legs.length===1?first.distance:first.distance+last.distance;
+  const outerDuration=legs.length===1?first.duration:first.duration+last.duration;
+  const packageDistance=Math.max(0,Number(route.distance)-outerDistance);
+  const packageKm=Math.round(packageDistance/10)/100;
+  const driveMinutes=Math.max(0,Math.round(outerDuration/60));
+  if(!Number.isFinite(packageKm)||!Number.isFinite(driveMinutes))throw new Error('Получены некорректные значения расстояния или времени.');
+  if(requestId!==routeRequestId)return;
+  $('helloPackageKm').value=String(packageKm);
+  $('driveHours').value=String(Math.floor(driveMinutes/60));
+  $('driveMinutes').value=String(driveMinutes%60);
+  lastAppliedRouteLink=raw;
+  const totalKm=Number(route.distance)/1000;
+  const message='Готово: весь маршрут '+fmt(totalKm)+' км · в абонемент Hello '+fmt(packageKm)+' км · время в дороге '+timeText(driveMinutes)+'. Общий пробег и время аренды введи вручную.';
+  status.textContent=message;
+  status.className='route-status success';
+  if(points.length===2)status.textContent+=' В ссылке только один участок: для комбинированного маршрута добавь обратный путь до стартовой точки.';
+  calcAll();
+ }catch(error){
+  if(requestId!==routeRequestId)return;
+  status.textContent=(error&&error.message?error.message:'Не удалось рассчитать маршрут.')+' Время в дороге и километраж абонемента можно ввести вручную.';
+  status.className='route-status error';
+ }finally{
+  if(requestId===routeRequestId){routeInFlightUrl='';button.disabled=false;button.textContent='Рассчитать';}
+ }
+}
 // Existing bonus percentage and rounding retained; only comparison/presentation is new.
 const bonusAmount=(v,cost)=>v.provider==='Anytime'?Math.round(cost*0.10*100)/100:0;
 const effectiveCost=(v,cost)=>v.provider==='Anytime'?Math.round(cost*0.90*100)/100:cost;
@@ -1119,9 +1211,8 @@ const compactLabel=label=>label.replace(/^Часы: /,'').replace(/^Дни: /,''
 const priceText=(v,o)=>`${o.status==='подтверждено'?'':'≈ '}${fmt(effectiveCost(v,o.cost))}`;
 function getTrip(){const d=safe($('km').value), h=safe($('hours').value),m=safe($('minutes').value),dh=safe($('driveHours').value),dm=safe($('driveMinutes').value);return {d,t:Math.round(h*60+m),drive:Math.round(dh*60+dm)};}
 function calcAll(){
- const {d,t,drive}=getTrip();const onlyVerified=$('verified').checked;
+ const {d,t,drive}=getTrip();
  const warn=[], valid=drive<=t&&t>0;
- if(valid&&drive>0&&t>drive&&onlyVerified)warn.push('Комбинированные тарифы Hello скрыты фильтром подтверждённых параметров.');
  const par=t-drive;
  const kmInput=$('helloPackageKm'), kmRaw=kmInput.value.trim(), packageKm=kmRaw===''?0:Number(kmRaw);
  kmInput.max=String(d);
@@ -1130,7 +1221,7 @@ function calcAll(){
  const kmError=$('helloKmError');kmError.hidden=mixedValid;kmInput.classList.toggle('errorfield',!mixedValid);
  kmInput.setAttribute('aria-invalid',String(!mixedValid));
  kmError.textContent=!kmValid?'Укажи пробег от 0 до общего километража ('+d.toLocaleString('ru-RU')+' км).':!mixedValid?'Для пробега по абонементу нужно время на среднюю часть маршрута.':'';
- if(!mixedValid&&!onlyVerified)warn.push('Комбинированные тарифы Hello временно исключены: проверь километраж абонемента.');
+ if(!mixedValid)warn.push('Комбинированные тарифы Hello временно исключены: проверь километраж абонемента.');
  const waiting=$('parking');waiting.textContent=drive>t?'—':timeText(par);waiting.classList.toggle('invalid',drive>t);
  for(const id of ['driveHours','driveMinutes'])$(id).classList.toggle('errorfield',drive>t);
  if(drive>t)warn.push('Время в дороге не может превышать время аренды. Исправь введённые значения.');
@@ -1140,7 +1231,7 @@ function calcAll(){
 
  const results=[];
  if(valid) for(const v of VEHICLES){
-  let opts=v.provider==='Anytime'?anytimeOptions(v,t,d,par,!onlyVerified):helloOptions(v,t,d,par,!onlyVerified&&mixedValid,packageKm);
+  let opts=v.provider==='Anytime'?anytimeOptions(v,t,d,par,true):helloOptions(v,t,d,par,mixedValid,packageKm);
   opts.sort((a,b)=>a.cost-b.cost||Number(b.status==='подтверждено')-Number(a.status==='подтверждено'));
   if(opts.length>0)results.push({v,best:opts[0],options:opts});
  }
@@ -1164,7 +1255,7 @@ function calcAll(){
  const showChoice=r=>{
   const hasBonus=bonusAmount(r.v,r.best.cost)>0;
   count.textContent=`${r.v.provider} — ${priceText(r.v,r.best)} руб`;
-  if(hasBonus){const suffix=document.createElement('span');suffix.className='bonus-suffix';suffix.textContent=' (с учётом 10% бонуса)';count.append(suffix);gross.textContent=`Без бонусов: ${r.best.status==='подтверждено'?'':'≈ '}${fmt(r.best.cost)} руб`;gross.hidden=false;}
+  if(hasBonus){const suffix=document.createElement('span');suffix.className='bonus-suffix';suffix.textContent=' (с бонусом 10%)';count.append(suffix);gross.textContent=`Без бонуса: ${r.best.status==='подтверждено'?'':'≈ '}${fmt(r.best.cost)} руб`;gross.hidden=false;}
   winningModel.textContent=r.v.model;winningModel.hidden=false;
   tariff.textContent=tariffText(r);tariff.hidden=false;
  };
@@ -1203,7 +1294,7 @@ function calcAll(){
     const mix=r.options.find(o=>o.mixed);
     const note=document.createElement('div');note.className='mixed-compare';
     if(mix){note.innerHTML='<span>Минуты + абонемент</span>';const val=document.createElement('strong');val.textContent=priceText(pr,mix)+' BYN';note.append(val);const sub=document.createElement('div');sub.className='mixed-small';sub.textContent=compactLabel(mix.label)+(mix.packageKm>0?` · ${mix.packageKm.toLocaleString('ru-RU')} км = ${fmt(mix.kmCharge)} руб`:'');note.append(sub);}
-    else{note.textContent=onlyVerified?'Комбинированный тариф скрыт фильтром':!mixedValid?'Проверь километраж для абонемента':'Комбинированный тариф недоступен для этих параметров';}
+    else{note.textContent=!mixedValid?'Проверь километраж для абонемента':'Комбинированный тариф недоступен для этих параметров';}
     header.append(note);
    }
    const bonus=bonusAmount(pr,best.cost);
@@ -1225,8 +1316,16 @@ function calcAll(){
   holder.append(board);
  }
 }
-for(const id of ['km','hours','minutes','driveHours','driveMinutes','helloPackageKm','verified'])$(id).addEventListener('input',calcAll);
+for(const id of ['km','hours','minutes','driveHours','driveMinutes','helloPackageKm'])$(id).addEventListener('input',calcAll);
+$('routeCalculate').addEventListener('click',calculateRouteFromYandexLink);
+$('routeUrl').addEventListener('change',calculateRouteFromYandexLink);
+$('routeUrl').addEventListener('paste',()=>setTimeout(calculateRouteFromYandexLink,0));
+$('routeUrl').addEventListener('input',()=>{
+ const value=$('routeUrl').value.trim();
+ if(!value){$('routeStatus').textContent=ROUTE_STATUS_DEFAULT;$('routeStatus').className='route-status';}
+ else if(value!==lastAppliedRouteLink){$('routeStatus').textContent='Ссылка изменена. Рассчитай маршрут, чтобы обновить километраж абонемента и время в дороге.';$('routeStatus').className='route-status';}
+});
 for(const chip of document.querySelectorAll('[data-provider]'))chip.addEventListener('click',()=>{provider=chip.dataset.provider;document.querySelectorAll('[data-provider]').forEach(c=>c.classList.toggle('active',c===chip));calcAll();});
-$('reset').addEventListener('click',()=>{$('results').innerHTML='';for(const [id,v] of [['km','30'],['hours','2'],['minutes','0'],['driveHours','1'],['driveMinutes','30'],['helloPackageKm','0']])$(id).value=v;$('verified').checked=false;provider='all';document.querySelectorAll('[data-provider]').forEach(c=>c.classList.toggle('active',c.dataset.provider==='all'));calcAll();});
+$('reset').addEventListener('click',()=>{$('results').innerHTML='';for(const [id,v] of [['km','30'],['hours','2'],['minutes','0'],['driveHours','1'],['driveMinutes','30'],['helloPackageKm','0']])$(id).value=v;$('routeUrl').value='';routeRequestId++;routeInFlightUrl='';lastAppliedRouteLink='';$('routeStatus').textContent=ROUTE_STATUS_DEFAULT;$('routeStatus').className='route-status';$('routeCalculate').disabled=false;$('routeCalculate').textContent='Рассчитать';provider='all';document.querySelectorAll('[data-provider]').forEach(c=>c.classList.toggle('active',c.dataset.provider==='all'));calcAll();});
 initTariffs();
 </script></body></html>
