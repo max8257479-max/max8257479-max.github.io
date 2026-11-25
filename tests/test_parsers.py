@@ -18,7 +18,7 @@ def test_parse_hello_page():
     Каждый км по 0.47 BYN СУТКИ И КМ 1 сут. — 49.00 BYN 2 сут. — 96.00 BYN
     Каждый км по 0.47 BYN Условия</div></body></html>'''
     result = parse_hello_page("https://hello.by/cars/volkswagen-polo", html, {})
-    assert result["model"] == "Volkswagen Polo"
+    assert result["model"] == "Volkswagen Polo без оклейки"
     assert result["move"] == 0.32
     assert result["park"] == 0.15
     assert result["km"] == 0.47
