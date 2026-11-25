@@ -53,8 +53,19 @@
         "24h": 33.5,
         "48h": 64.9
       },
-      "status": "new_model_candidate",
-      "comparison": {}
+      "status": "known_model",
+      "comparison": {
+        "move": {
+          "calculator": 0.43,
+          "public_source": 0.43,
+          "differs": false
+        },
+        "park": {
+          "calculator": 0.19,
+          "public_source": 0.19,
+          "differs": false
+        }
+      }
     },
     {
       "model": "Haval Jolion Black edition",
@@ -66,8 +77,19 @@
         "24h": 33.5,
         "48h": 64.9
       },
-      "status": "new_model_candidate",
-      "comparison": {}
+      "status": "known_model",
+      "comparison": {
+        "move": {
+          "calculator": 0.4,
+          "public_source": 0.4,
+          "differs": false
+        },
+        "park": {
+          "calculator": 0.19,
+          "public_source": 0.19,
+          "differs": false
+        }
+      }
     },
     {
       "model": "Volkswagen Polo",
@@ -109,16 +131,5 @@
       }
     }
   ],
-  "pendingReview": [
-    {
-      "model": "Belgee X50",
-      "reason": "Новая модель обнаружена, но полной матрицы тарифов для калькулятора нет",
-      "url": "https://carsync.by/carsharings/anytime/models/belgee-x50-2"
-    },
-    {
-      "model": "Haval Jolion Black edition",
-      "reason": "Новая модель обнаружена, но полной матрицы тарифов для калькулятора нет",
-      "url": "https://carsync.by/carsharings/anytime/models/haval-jolion-black-edition"
-    }
-  ]
+  "pendingReview": []
 }
