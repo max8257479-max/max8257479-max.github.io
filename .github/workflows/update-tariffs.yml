@@ -61,10 +61,10 @@ jobs:
           git commit -m "chore: refresh carsharing tariff data [skip ci]"
           git push
 
+      # GitHub Pages must be enabled once in repository Settings > Pages.
+      # The workflow token cannot create a Pages site by itself.
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Prepare website
         run: |
