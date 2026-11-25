@@ -2,7 +2,123 @@
   "schemaVersion": 1,
   "source": "CarSync — независимый справочник, не официальный источник Anytime",
   "sourceUrl": "https://carsync.by/carsharings/anytime",
-  "note": "Пока не выполнена первая автоматическая проверка. Значения из этого файла не заменяют тарифную матрицу приложения Anytime.",
-  "models": [],
-  "pendingReview": []
+  "note": "Эти значения используются только для обнаружения изменений. Они не заменяют тарифную матрицу из приложения и не подставляются в калькулятор автоматически.",
+  "models": [
+    {
+      "model": "Belgee S50",
+      "url": "https://carsync.by/carsharings/anytime/models/belgee-s50",
+      "move": 0.38,
+      "park": 0.19,
+      "specials": {
+        "2h": 8.99,
+        "24h": 30.5,
+        "48h": 59.9
+      },
+      "status": "known_model",
+      "comparison": {
+        "move": {
+          "calculator": 0.38,
+          "public_source": 0.38,
+          "differs": false
+        },
+        "park": {
+          "calculator": 0.19,
+          "public_source": 0.19,
+          "differs": false
+        },
+        "specials.2h.price": {
+          "calculator": 8.99,
+          "public_source": 8.99,
+          "differs": false
+        },
+        "specials.24h.price": {
+          "calculator": 30.5,
+          "public_source": 30.5,
+          "differs": false
+        },
+        "specials.48h.price": {
+          "calculator": 59.9,
+          "public_source": 59.9,
+          "differs": false
+        }
+      }
+    },
+    {
+      "model": "Belgee X50",
+      "url": "https://carsync.by/carsharings/anytime/models/belgee-x50-2",
+      "move": 0.43,
+      "park": 0.19,
+      "specials": {
+        "2h": 9.99,
+        "24h": 33.5,
+        "48h": 64.9
+      },
+      "status": "new_model_candidate",
+      "comparison": {}
+    },
+    {
+      "model": "Haval Jolion Black edition",
+      "url": "https://carsync.by/carsharings/anytime/models/haval-jolion-black-edition",
+      "move": 0.4,
+      "park": 0.19,
+      "specials": {
+        "2h": 9.99,
+        "24h": 33.5,
+        "48h": 64.9
+      },
+      "status": "new_model_candidate",
+      "comparison": {}
+    },
+    {
+      "model": "Volkswagen Polo",
+      "url": "https://carsync.by/carsharings/anytime/models/volkswagen-polo",
+      "move": 0.33,
+      "park": 0.17,
+      "specials": {
+        "2h": 7.99,
+        "24h": 28.5,
+        "48h": 54.9
+      },
+      "status": "known_model",
+      "comparison": {
+        "move": {
+          "calculator": 0.33,
+          "public_source": 0.33,
+          "differs": false
+        },
+        "park": {
+          "calculator": 0.17,
+          "public_source": 0.17,
+          "differs": false
+        },
+        "specials.2h.price": {
+          "calculator": 7.99,
+          "public_source": 7.99,
+          "differs": false
+        },
+        "specials.24h.price": {
+          "calculator": 28.5,
+          "public_source": 28.5,
+          "differs": false
+        },
+        "specials.48h.price": {
+          "calculator": 54.9,
+          "public_source": 54.9,
+          "differs": false
+        }
+      }
+    }
+  ],
+  "pendingReview": [
+    {
+      "model": "Belgee X50",
+      "reason": "Новая модель обнаружена, но полной матрицы тарифов для калькулятора нет",
+      "url": "https://carsync.by/carsharings/anytime/models/belgee-x50-2"
+    },
+    {
+      "model": "Haval Jolion Black edition",
+      "reason": "Новая модель обнаружена, но полной матрицы тарифов для калькулятора нет",
+      "url": "https://carsync.by/carsharings/anytime/models/haval-jolion-black-edition"
+    }
+  ]
 }
