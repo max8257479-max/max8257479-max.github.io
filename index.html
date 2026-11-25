@@ -1178,6 +1178,13 @@ async function calculateRouteFromYandexLink(){
  status.className='route-status';status.textContent='Рассчитываю участки маршрута…';
  try{
   const points=parseYandexRouteLink(raw);
+  if(points.length>2){
+   const start=points[0],end=points[points.length-1],rad=Math.PI/180;
+   const dLat=(end.lat-start.lat)*rad,dLon=(end.lon-start.lon)*rad,lat1=start.lat*rad,lat2=end.lat*rad;
+   const haversine=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
+   const gapMeters=6371000*2*Math.asin(Math.min(1,Math.sqrt(haversine)));
+   if(gapMeters>500)throw new Error('Для расчёта минутного тарифа на обратном участке последняя точка маршрута должна совпадать с исходной точкой старта. Добавь старт в конец маршрута.');
+  }
   const waitMs=Math.max(0,1000-(Date.now()-lastRouteRequestAt));
   if(waitMs)await new Promise(resolve=>setTimeout(resolve,waitMs));
   if(requestId!==routeRequestId)return;
