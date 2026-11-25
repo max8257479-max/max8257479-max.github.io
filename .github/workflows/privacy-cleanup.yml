@@ -1,0 +1,48 @@
+name: One-time commit email privacy cleanup
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/privacy-cleanup.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Serialize with the daily tariff updater so both jobs cannot push simultaneously.
+concurrency:
+  group: daily-carsharing-tariffs
+  cancel-in-progress: false
+
+jobs:
+  rewrite-history:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Replace public Gmail commit metadata
+        env:
+          GIT_NOREPLY_EMAIL: "352364042+max8257479-max@users.noreply.github.com"
+        run: |
+          set -euo pipefail
+          git config user.name "max8257479-max"
+          git config user.email "$GIT_NOREPLY_EMAIL"
+          git checkout -B main origin/main
+
+          git filter-branch --force --env-filter '
+            case "$GIT_AUTHOR_EMAIL" in
+              *@gmail.com) export GIT_AUTHOR_EMAIL="$GIT_NOREPLY_EMAIL" ;;
+            esac
+            case "$GIT_COMMITTER_EMAIL" in
+              *@gmail.com) export GIT_COMMITTER_EMAIL="$GIT_NOREPLY_EMAIL" ;;
+            esac
+          ' -- main
+
+          git checkout main
+          git rm .github/workflows/privacy-cleanup.yml
+          git commit --amend --no-edit --reset-author
+          git push --force origin main
