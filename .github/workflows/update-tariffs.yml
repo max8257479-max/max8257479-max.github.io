@@ -46,6 +46,19 @@ jobs:
       - name: Test parsers
         run: python -m pytest -q
 
+      - name: Check calculator JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script>(.*?)</script>', html, flags=re.S)
+          if len(scripts) != 1:
+              raise SystemExit(f'Expected one inline script, found {len(scripts)}')
+          Path('/tmp/calculator.js').write_text(scripts[0], encoding='utf-8')
+          PY
+          node --check /tmp/calculator.js
+
       - name: Check and update tariff data
         run: python scripts/update_tariffs.py
 
