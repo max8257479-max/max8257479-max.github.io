@@ -1,0 +1,48 @@
+name: Daily carsharing tariff check
+
+on:
+  schedule:
+    # 08:00 Minsk time (UTC+3). GitHub Actions may start a scheduled run a little later.
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-carsharing-tariffs
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Test parsers
+        run: python -m pytest -q
+
+      - name: Check and update tariff data
+        run: python scripts/update_tariffs.py
+
+      - name: Commit only actual changes
+        run: |
+          if git diff --quiet -- tariffs.json data/anytime_watch.json; then
+            echo "No tariff or monitoring changes. Nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tariffs.json data/anytime_watch.json
+          git commit -m "chore: refresh carsharing tariff data [skip ci]"
+          git push

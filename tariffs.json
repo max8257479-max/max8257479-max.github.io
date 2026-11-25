@@ -1,0 +1,985 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "dataUpdatedAt": "2026-11-23",
+    "providers": {
+      "hello": {
+        "mode": "official_daily_scrape",
+        "source": "https://hello.by/cars",
+        "profile": "Я резидент Беларуси; опыт больше 1 года",
+        "note": "Цены из официальных страниц автомобилей. Новые модели добавляются только после успешного разбора полного набора нужных полей."
+      },
+      "anytime": {
+        "mode": "hybrid",
+        "publicMonitor": "https://carsync.by/carsharings/anytime",
+        "manualSource": "Приложение Anytime: подтверждённые видео и скриншоты пользователя",
+        "lastManualVerification": "2026-11-23",
+        "note": "Публичный источник используется для обнаружения изменений и новых моделей. Он не подменяет полную тарифную матрицу приложения."
+      }
+    }
+  },
+  "vehicles": [
+    {
+      "id": "anytime-polo",
+      "provider": "Anytime",
+      "model": "Volkswagen Polo",
+      "tag": "Снимки и видео пользователя · 23.11.2026",
+      "move": 0.33,
+      "park": 0.17,
+      "minuteKm": null,
+      "freeBooking": 12,
+      "hourBases": {
+        "1": 7.83,
+        "2": 11.16,
+        "3": 14.04,
+        "4": 17.12,
+        "5": 20.85,
+        "6": 21.98,
+        "7": 25.64,
+        "8": 29.31,
+        "9": 32.97,
+        "10": 36.64,
+        "12": 43.97
+      },
+      "hourKms": {
+        "1": [
+          0,
+          10,
+          20,
+          35,
+          50
+        ],
+        "2": [
+          0,
+          15,
+          30,
+          50,
+          75,
+          100
+        ],
+        "3": [
+          0,
+          20,
+          35,
+          55,
+          80,
+          100,
+          130,
+          160
+        ],
+        "4": [
+          0,
+          30,
+          60,
+          80,
+          100,
+          150,
+          200
+        ],
+        "5": [
+          0,
+          40,
+          70,
+          100,
+          150,
+          200
+        ],
+        "6": [
+          0,
+          50,
+          100,
+          150,
+          200,
+          250,
+          300
+        ],
+        "7": [
+          0,
+          55,
+          110,
+          160,
+          220,
+          260,
+          330,
+          400
+        ],
+        "8": [
+          0,
+          60,
+          120,
+          170,
+          240,
+          280,
+          350,
+          450
+        ],
+        "9": [
+          0,
+          65,
+          130,
+          180,
+          250,
+          300,
+          380,
+          500
+        ],
+        "10": [
+          0,
+          70,
+          140,
+          190,
+          260,
+          330,
+          400,
+          550
+        ],
+        "12": [
+          0,
+          75,
+          150,
+          200,
+          280,
+          350,
+          450,
+          600
+        ]
+      },
+      "hourExact": {
+        "1:0": 7.83,
+        "1:10": 11.83,
+        "1:20": 15.63,
+        "1:35": 21.13,
+        "1:50": 26.33,
+        "2:50": 30.16,
+        "2:75": 38.91,
+        "2:100": 48.16,
+        "6:50": 41.98,
+        "6:100": 60.98,
+        "6:150": 78.98,
+        "6:200": 95.98,
+        "6:250": 114.48,
+        "6:300": 132.98,
+        "7:55": 47.64,
+        "7:110": 68.54,
+        "7:160": 86.44,
+        "7:220": 107.04,
+        "7:260": 121.84,
+        "7:330": 147.74
+      },
+      "hourKmRate": [
+        0,
+        0.4,
+        0.39,
+        0.38,
+        0.37
+      ],
+      "customExcessMin": 0.15,
+      "customExcessKm": 0.41,
+      "specials": {
+        "2h": {
+          "label": "1+1 час в подарок",
+          "minutes": 120,
+          "price": 7.99
+        },
+        "24h": {
+          "label": "Свободный 24",
+          "minutes": 1440,
+          "price": 28.5
+        },
+        "48h": {
+          "label": "Свободный 48",
+          "minutes": 2880,
+          "price": 54.9
+        }
+      },
+      "specialKm": 0.39,
+      "specialExcessDrive": 0.18,
+      "specialExcessPark": 0.17,
+      "day0": 48.6,
+      "dayExact": {
+        "0": 48.6,
+        "80": 80.6,
+        "120": 95.4,
+        "180": 117.0,
+        "350": 178.1,
+        "500": 233.6
+      },
+      "dayKms": [
+        0,
+        80,
+        120,
+        180,
+        350,
+        500
+      ],
+      "source": "Скриншоты и видео приложения Anytime, 23.11.2026"
+    },
+    {
+      "id": "anytime-s50",
+      "provider": "Anytime",
+      "model": "Belgee S50",
+      "tag": "Снимки и видео пользователя · 23.11.2026",
+      "move": 0.38,
+      "park": 0.19,
+      "minuteKm": null,
+      "freeBooking": 15,
+      "hourBases": {
+        "1": 9.4,
+        "2": 13.4,
+        "3": 16.85,
+        "4": 20.52,
+        "5": 25.0,
+        "6": 26.37,
+        "7": 30.77,
+        "8": 35.16,
+        "9": 39.56,
+        "10": 43.96,
+        "12": 52.75
+      },
+      "hourKms": {
+        "1": [
+          0,
+          10,
+          20,
+          35,
+          50
+        ],
+        "2": [
+          0,
+          15,
+          30,
+          50,
+          75,
+          100
+        ],
+        "3": [
+          0,
+          20,
+          35,
+          55,
+          80,
+          100,
+          130,
+          160
+        ],
+        "4": [
+          0,
+          30,
+          60,
+          80,
+          100,
+          150,
+          200
+        ],
+        "5": [
+          0,
+          40,
+          70,
+          100,
+          150,
+          200
+        ],
+        "6": [
+          0,
+          50,
+          100,
+          150,
+          200,
+          250,
+          300
+        ],
+        "7": [
+          0,
+          55,
+          110,
+          160,
+          220,
+          260,
+          330,
+          400
+        ],
+        "8": [
+          0,
+          60,
+          120,
+          170,
+          240,
+          280,
+          350,
+          450
+        ],
+        "9": [
+          0,
+          65,
+          130,
+          180,
+          250,
+          300,
+          380,
+          500
+        ],
+        "10": [
+          0,
+          70,
+          140,
+          190,
+          260,
+          330,
+          400,
+          550
+        ],
+        "12": [
+          0,
+          75,
+          150,
+          200,
+          280,
+          350,
+          450,
+          600
+        ]
+      },
+      "hourExact": {
+        "3:35": 30.85,
+        "4:60": 44.52,
+        "5:100": 65.0,
+        "6:100": 66.37,
+        "7:160": 94.77,
+        "8:0": 35.16,
+        "9:280": 144.36,
+        "10:300": 156.56
+      },
+      "hourKmRate": [
+        0,
+        0.42,
+        0.4,
+        0.4,
+        0.39
+      ],
+      "customExcessMin": 0.18,
+      "customExcessKm": 0.43,
+      "specials": {
+        "2h": {
+          "label": "1+1 час в подарок",
+          "minutes": 120,
+          "price": 8.99
+        },
+        "24h": {
+          "label": "Свободный 24",
+          "minutes": 1440,
+          "price": 30.5
+        },
+        "48h": {
+          "label": "Свободный 48",
+          "minutes": 2880,
+          "price": 59.9
+        }
+      },
+      "specialKm": 0.45,
+      "specialExcessDrive": 0.18,
+      "specialExcessPark": 0.19,
+      "day0": 58.32,
+      "dayExact": {
+        "0": 58.32,
+        "80": 91.92,
+        "120": 106.32,
+        "180": 130.32,
+        "350": 194.82,
+        "500": 253.32
+      },
+      "dayKms": [
+        0,
+        80,
+        120,
+        180,
+        350,
+        500
+      ],
+      "source": "Скриншоты и видео приложения Anytime, 23.11.2026"
+    },
+    {
+      "id": "hello-polo-w",
+      "provider": "Hello",
+      "model": "Volkswagen Polo с оклейкой",
+      "tag": "Официальный сайт · 23.11.2026",
+      "move": 0.32,
+      "park": 0.15,
+      "km": 0.45,
+      "packages": [
+        {
+          "minutes": 30,
+          "price": 5.9,
+          "label": "30 минут"
+        },
+        {
+          "minutes": 60,
+          "price": 9.9,
+          "label": "60 минут"
+        },
+        {
+          "minutes": 120,
+          "price": 15.9,
+          "label": "2 часа"
+        },
+        {
+          "minutes": 180,
+          "price": 19,
+          "label": "3 часа"
+        },
+        {
+          "minutes": 360,
+          "price": 29,
+          "label": "6 часов"
+        },
+        {
+          "minutes": 540,
+          "price": 39,
+          "label": "9 часов"
+        },
+        {
+          "minutes": 1440,
+          "price": 49,
+          "label": "1 суток"
+        },
+        {
+          "minutes": 2880,
+          "price": 96,
+          "label": "2 суток"
+        },
+        {
+          "minutes": 4320,
+          "price": 139,
+          "label": "3 суток"
+        },
+        {
+          "minutes": 7200,
+          "price": 229,
+          "label": "5 суток"
+        },
+        {
+          "minutes": 10080,
+          "price": 319,
+          "label": "7 суток"
+        },
+        {
+          "minutes": 20160,
+          "price": 629,
+          "label": "14 суток"
+        },
+        {
+          "minutes": 43200,
+          "price": 1348,
+          "label": "30 суток"
+        }
+      ],
+      "source": "https://hello.by/cars/volkswagen-polo-wrapped",
+      "url": "https://hello.by/cars/volkswagen-polo-wrapped"
+    },
+    {
+      "id": "hello-polo-nw",
+      "provider": "Hello",
+      "model": "Volkswagen Polo без оклейки",
+      "tag": "Официальный сайт · 23.11.2026",
+      "move": 0.32,
+      "park": 0.15,
+      "km": 0.47,
+      "packages": [
+        {
+          "minutes": 30,
+          "price": 5.9,
+          "label": "30 минут"
+        },
+        {
+          "minutes": 60,
+          "price": 9.9,
+          "label": "60 минут"
+        },
+        {
+          "minutes": 120,
+          "price": 15.9,
+          "label": "2 часа"
+        },
+        {
+          "minutes": 180,
+          "price": 19,
+          "label": "3 часа"
+        },
+        {
+          "minutes": 360,
+          "price": 29,
+          "label": "6 часов"
+        },
+        {
+          "minutes": 540,
+          "price": 39,
+          "label": "9 часов"
+        },
+        {
+          "minutes": 1440,
+          "price": 49,
+          "label": "1 суток"
+        },
+        {
+          "minutes": 2880,
+          "price": 96,
+          "label": "2 суток"
+        },
+        {
+          "minutes": 4320,
+          "price": 139,
+          "label": "3 суток"
+        },
+        {
+          "minutes": 7200,
+          "price": 229,
+          "label": "5 суток"
+        },
+        {
+          "minutes": 10080,
+          "price": 319,
+          "label": "7 суток"
+        },
+        {
+          "minutes": 20160,
+          "price": 629,
+          "label": "14 суток"
+        },
+        {
+          "minutes": 43200,
+          "price": 1348,
+          "label": "30 суток"
+        }
+      ],
+      "source": "https://hello.by/cars/volkswagen-polo",
+      "url": "https://hello.by/cars/volkswagen-polo"
+    },
+    {
+      "id": "hello-emgrand",
+      "provider": "Hello",
+      "model": "Geely Emgrand",
+      "tag": "Официальный сайт · 23.11.2026",
+      "move": 0.37,
+      "park": 0.17,
+      "km": 0.49,
+      "packages": [
+        {
+          "minutes": 30,
+          "price": 5.9,
+          "label": "30 минут"
+        },
+        {
+          "minutes": 60,
+          "price": 9.9,
+          "label": "60 минут"
+        },
+        {
+          "minutes": 120,
+          "price": 15.9,
+          "label": "2 часа"
+        },
+        {
+          "minutes": 180,
+          "price": 19,
+          "label": "3 часа"
+        },
+        {
+          "minutes": 360,
+          "price": 29,
+          "label": "6 часов"
+        },
+        {
+          "minutes": 540,
+          "price": 39,
+          "label": "9 часов"
+        },
+        {
+          "minutes": 1440,
+          "price": 49,
+          "label": "1 суток"
+        },
+        {
+          "minutes": 2880,
+          "price": 96,
+          "label": "2 суток"
+        },
+        {
+          "minutes": 4320,
+          "price": 139,
+          "label": "3 суток"
+        },
+        {
+          "minutes": 7200,
+          "price": 229,
+          "label": "5 суток"
+        },
+        {
+          "minutes": 10080,
+          "price": 319,
+          "label": "7 суток"
+        },
+        {
+          "minutes": 20160,
+          "price": 629,
+          "label": "14 суток"
+        },
+        {
+          "minutes": 43200,
+          "price": 1348,
+          "label": "30 суток"
+        }
+      ],
+      "source": "https://hello.by/cars/geely-emgrand",
+      "url": "https://hello.by/cars/geely-emgrand"
+    },
+    {
+      "id": "hello-polo-new",
+      "provider": "Hello",
+      "model": "Volkswagen Polo NEW",
+      "tag": "Официальный сайт · 23.11.2026",
+      "move": 0.37,
+      "park": 0.17,
+      "km": 0.49,
+      "packages": [
+        {
+          "minutes": 30,
+          "price": 5.9,
+          "label": "30 минут"
+        },
+        {
+          "minutes": 60,
+          "price": 9.9,
+          "label": "60 минут"
+        },
+        {
+          "minutes": 120,
+          "price": 15.9,
+          "label": "2 часа"
+        },
+        {
+          "minutes": 180,
+          "price": 19,
+          "label": "3 часа"
+        },
+        {
+          "minutes": 360,
+          "price": 29,
+          "label": "6 часов"
+        },
+        {
+          "minutes": 540,
+          "price": 39,
+          "label": "9 часов"
+        },
+        {
+          "minutes": 1440,
+          "price": 49,
+          "label": "1 суток"
+        },
+        {
+          "minutes": 2880,
+          "price": 96,
+          "label": "2 суток"
+        },
+        {
+          "minutes": 4320,
+          "price": 139,
+          "label": "3 суток"
+        },
+        {
+          "minutes": 7200,
+          "price": 229,
+          "label": "5 суток"
+        },
+        {
+          "minutes": 10080,
+          "price": 319,
+          "label": "7 суток"
+        },
+        {
+          "minutes": 20160,
+          "price": 629,
+          "label": "14 суток"
+        },
+        {
+          "minutes": 43200,
+          "price": 1348,
+          "label": "30 суток"
+        }
+      ],
+      "source": "https://hello.by/cars/volkswagen-polo-new-wrapped",
+      "url": "https://hello.by/cars/volkswagen-polo-new-wrapped"
+    },
+    {
+      "id": "hello-coolray",
+      "provider": "Hello",
+      "model": "Geely Coolray с оклейкой",
+      "tag": "Официальный сайт · 23.11.2026",
+      "move": 0.43,
+      "park": 0.21,
+      "km": 0.59,
+      "packages": [
+        {
+          "minutes": 30,
+          "price": 6.9,
+          "label": "30 минут"
+        },
+        {
+          "minutes": 60,
+          "price": 10.9,
+          "label": "60 минут"
+        },
+        {
+          "minutes": 180,
+          "price": 31,
+          "label": "3 часа"
+        },
+        {
+          "minutes": 360,
+          "price": 41,
+          "label": "6 часов"
+        },
+        {
+          "minutes": 1440,
+          "price": 69,
+          "label": "1 суток"
+        },
+        {
+          "minutes": 2880,
+          "price": 129,
+          "label": "2 суток"
+        },
+        {
+          "minutes": 4320,
+          "price": 189,
+          "label": "3 суток"
+        },
+        {
+          "minutes": 7200,
+          "price": 309,
+          "label": "5 суток"
+        },
+        {
+          "minutes": 10080,
+          "price": 429,
+          "label": "7 суток"
+        },
+        {
+          "minutes": 20160,
+          "price": 849,
+          "label": "14 суток"
+        },
+        {
+          "minutes": 43200,
+          "price": 1819,
+          "label": "30 суток"
+        }
+      ],
+      "source": "https://hello.by/cars/geely-coolray-wrapped",
+      "url": "https://hello.by/cars/geely-coolray-wrapped"
+    },
+    {
+      "id": "hello-coolray-new",
+      "provider": "Hello",
+      "model": "Geely Coolray NEW",
+      "tag": "Официальный сайт · 23.11.2026",
+      "move": 0.43,
+      "park": 0.23,
+      "km": 0.67,
+      "packages": [
+        {
+          "minutes": 30,
+          "price": 8,
+          "label": "30 минут"
+        },
+        {
+          "minutes": 60,
+          "price": 14,
+          "label": "60 минут"
+        },
+        {
+          "minutes": 180,
+          "price": 42,
+          "label": "3 часа"
+        },
+        {
+          "minutes": 360,
+          "price": 63,
+          "label": "6 часов"
+        },
+        {
+          "minutes": 1440,
+          "price": 73,
+          "label": "1 суток"
+        },
+        {
+          "minutes": 2880,
+          "price": 144,
+          "label": "2 суток"
+        },
+        {
+          "minutes": 4320,
+          "price": 211,
+          "label": "3 суток"
+        },
+        {
+          "minutes": 7200,
+          "price": 349,
+          "label": "5 суток"
+        },
+        {
+          "minutes": 10080,
+          "price": 489,
+          "label": "7 суток"
+        },
+        {
+          "minutes": 20160,
+          "price": 959,
+          "label": "14 суток"
+        },
+        {
+          "minutes": 43200,
+          "price": 2055,
+          "label": "30 суток"
+        }
+      ],
+      "source": "https://hello.by/cars/geely-coolray-new",
+      "url": "https://hello.by/cars/geely-coolray-new"
+    },
+    {
+      "id": "hello-x50-w",
+      "provider": "Hello",
+      "model": "Belgee X50+ с оклейкой",
+      "tag": "Официальный сайт · 23.11.2026",
+      "move": 0.43,
+      "park": 0.23,
+      "km": 0.63,
+      "packages": [
+        {
+          "minutes": 30,
+          "price": 8,
+          "label": "30 минут"
+        },
+        {
+          "minutes": 60,
+          "price": 14,
+          "label": "60 минут"
+        },
+        {
+          "minutes": 180,
+          "price": 42,
+          "label": "3 часа"
+        },
+        {
+          "minutes": 360,
+          "price": 63,
+          "label": "6 часов"
+        },
+        {
+          "minutes": 1440,
+          "price": 73,
+          "label": "1 суток"
+        },
+        {
+          "minutes": 2880,
+          "price": 144,
+          "label": "2 суток"
+        },
+        {
+          "minutes": 4320,
+          "price": 211,
+          "label": "3 суток"
+        },
+        {
+          "minutes": 7200,
+          "price": 349,
+          "label": "5 суток"
+        },
+        {
+          "minutes": 10080,
+          "price": 489,
+          "label": "7 суток"
+        },
+        {
+          "minutes": 20160,
+          "price": 959,
+          "label": "14 суток"
+        },
+        {
+          "minutes": 43200,
+          "price": 2055,
+          "label": "30 суток"
+        }
+      ],
+      "source": "https://hello.by/cars/belgee-x50-wrapped",
+      "url": "https://hello.by/cars/belgee-x50-wrapped"
+    },
+    {
+      "id": "hello-x50-nw",
+      "provider": "Hello",
+      "model": "Belgee X50+ без оклейки",
+      "tag": "Официальный сайт · 23.11.2026",
+      "move": 0.43,
+      "park": 0.23,
+      "km": 0.67,
+      "packages": [
+        {
+          "minutes": 30,
+          "price": 8,
+          "label": "30 минут"
+        },
+        {
+          "minutes": 60,
+          "price": 14,
+          "label": "60 минут"
+        },
+        {
+          "minutes": 180,
+          "price": 42,
+          "label": "3 часа"
+        },
+        {
+          "minutes": 360,
+          "price": 63,
+          "label": "6 часов"
+        },
+        {
+          "minutes": 1440,
+          "price": 73,
+          "label": "1 суток"
+        },
+        {
+          "minutes": 2880,
+          "price": 144,
+          "label": "2 суток"
+        },
+        {
+          "minutes": 4320,
+          "price": 211,
+          "label": "3 суток"
+        },
+        {
+          "minutes": 7200,
+          "price": 349,
+          "label": "5 суток"
+        },
+        {
+          "minutes": 10080,
+          "price": 489,
+          "label": "7 суток"
+        },
+        {
+          "minutes": 20160,
+          "price": 959,
+          "label": "14 суток"
+        },
+        {
+          "minutes": 43200,
+          "price": 2055,
+          "label": "30 суток"
+        }
+      ],
+      "source": "https://hello.by/cars/belgee-x50",
+      "url": "https://hello.by/cars/belgee-x50"
+    }
+  ]
+}

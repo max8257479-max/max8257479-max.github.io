@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "source": "CarSync — независимый справочник, не официальный источник Anytime",
+  "sourceUrl": "https://carsync.by/carsharings/anytime",
+  "note": "Пока не выполнена первая автоматическая проверка. Значения из этого файла не заменяют тарифную матрицу приложения Anytime.",
+  "models": [],
+  "pendingReview": []
+}
