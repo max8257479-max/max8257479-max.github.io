@@ -14,7 +14,7 @@
         "publicMonitor": "https://carsync.by/carsharings/anytime",
         "manualSource": "Приложение Anytime: подтверждённые видео и скриншоты пользователя",
         "lastManualVerification": "2026-11-23",
-        "note": "Публичный источник используется для обнаружения изменений и новых моделей. Он не подменяет полную тарифную матрицу приложения."
+        "note": "Публичный источник используется для обнаружения изменений и новых моделей. Полная тарифная матрица Anytime вносится только после проверки приложения. Записи infoOnly показывают публичные справочные цены и не участвуют в расчёте."
       }
     }
   },
@@ -33,7 +33,7 @@
         "2": 13.4,
         "3": 16.85,
         "4": 20.52,
-        "5": 25.0,
+        "5": 25,
         "6": 26.37,
         "7": 30.77,
         "8": 35.16,
@@ -147,7 +147,7 @@
       "hourExact": {
         "3:35": 30.85,
         "4:60": 44.52,
-        "5:100": 65.0,
+        "5:100": 65,
         "6:100": 66.37,
         "7:160": 94.77,
         "8:0": 35.16,
@@ -383,7 +383,7 @@
         "0": 48.6,
         "80": 80.6,
         "120": 95.4,
-        "180": 117.0,
+        "180": 117,
         "350": 178.1,
         "500": 233.6
       },
@@ -398,9 +398,162 @@
       "source": "Скриншоты и видео приложения Anytime, 23.11.2026"
     },
     {
+      "id": "anytime-belgee-x50-wrapped",
+      "provider": "Anytime",
+      "model": "Belgee X50",
+      "tag": "CarSync · справочные цены · 25.11.2026",
+      "move": 0.43,
+      "park": 0.19,
+      "minuteKm": null,
+      "freeBooking": null,
+      "hourBases": {},
+      "hourKms": {},
+      "hourKmRate": [],
+      "hourExact": {},
+      "customExcessMin": 0,
+      "customExcessKm": 0,
+      "specials": {},
+      "specialKm": null,
+      "specialExcessDrive": null,
+      "specialExcessPark": null,
+      "day0": null,
+      "dayExact": {},
+      "dayKms": [],
+      "infoOnly": true,
+      "publicRates": {
+        "minute": 0.43,
+        "parking": 0.19,
+        "packages": [
+          {
+            "minutes": 120,
+            "label": "2 часа",
+            "price": 9.99,
+            "kmIncluded": null
+          },
+          {
+            "minutes": 1440,
+            "label": "24 часа",
+            "price": 33.5,
+            "kmIncluded": 100
+          },
+          {
+            "minutes": 2880,
+            "label": "48 часов",
+            "price": 64.9,
+            "kmIncluded": null
+          }
+        ],
+        "note": "Справочные цены без бонусов. Не подтверждены лимит километров для пакетов 2 и 48 часов и ставка за перепробег; поэтому модель пока не участвует в сравнении.",
+        "source": "CarSync — независимый справочник, не официальный источник Anytime",
+        "sourceUrl": "https://carsync.by/cars/9310aa8"
+      }
+    },
+    {
+      "id": "anytime-belgee-x50-unwrapped",
+      "provider": "Anytime",
+      "model": "Belgee X50 (без оклейки)",
+      "tag": "CarSync · справочные цены · 25.11.2026",
+      "move": 0.44,
+      "park": 0.19,
+      "minuteKm": null,
+      "freeBooking": null,
+      "hourBases": {},
+      "hourKms": {},
+      "hourKmRate": [],
+      "hourExact": {},
+      "customExcessMin": 0,
+      "customExcessKm": 0,
+      "specials": {},
+      "specialKm": null,
+      "specialExcessDrive": null,
+      "specialExcessPark": null,
+      "day0": null,
+      "dayExact": {},
+      "dayKms": [],
+      "infoOnly": true,
+      "publicRates": {
+        "minute": 0.44,
+        "parking": 0.19,
+        "packages": [
+          {
+            "minutes": 120,
+            "label": "2 часа",
+            "price": 9.99,
+            "kmIncluded": null
+          },
+          {
+            "minutes": 1440,
+            "label": "24 часа",
+            "price": 33.5,
+            "kmIncluded": 100
+          },
+          {
+            "minutes": 2880,
+            "label": "48 часов",
+            "price": 64.9,
+            "kmIncluded": null
+          }
+        ],
+        "note": "Справочные цены без бонусов. Не подтверждены лимит километров для пакетов 2 и 48 часов и ставка за перепробег; поэтому модель пока не участвует в сравнении.",
+        "source": "CarSync — независимый справочник, не официальный источник Anytime",
+        "sourceUrl": "https://carsync.by/cars/9169aa8"
+      }
+    },
+    {
+      "id": "anytime-haval-jolion-black-edition",
+      "provider": "Anytime",
+      "model": "Haval Jolion Black Edition",
+      "tag": "CarSync · справочные цены · 25.11.2026",
+      "move": 0.4,
+      "park": 0.19,
+      "minuteKm": null,
+      "freeBooking": null,
+      "hourBases": {},
+      "hourKms": {},
+      "hourKmRate": [],
+      "hourExact": {},
+      "customExcessMin": 0,
+      "customExcessKm": 0,
+      "specials": {},
+      "specialKm": null,
+      "specialExcessDrive": null,
+      "specialExcessPark": null,
+      "day0": null,
+      "dayExact": {},
+      "dayKms": [],
+      "infoOnly": true,
+      "publicRates": {
+        "minute": 0.4,
+        "parking": 0.19,
+        "packages": [
+          {
+            "minutes": 120,
+            "label": "2 часа",
+            "price": 9.99,
+            "kmIncluded": null
+          },
+          {
+            "minutes": 1440,
+            "label": "24 часа",
+            "price": 33.5,
+            "kmIncluded": 100
+          },
+          {
+            "minutes": 2880,
+            "label": "48 часов",
+            "price": 64.9,
+            "kmIncluded": null
+          }
+        ],
+        "note": "Справочные цены без бонусов. Не подтверждены лимит километров для пакетов 2 и 48 часов и ставка за перепробег; поэтому модель пока не участвует в сравнении.",
+        "source": "CarSync — независимый справочник, не официальный источник Anytime",
+        "sourceUrl": "https://carsync.by/carsharings/anytime/models/haval-jolion-black-edition"
+      }
+    },
+    {
       "id": "hello-x50-nw",
       "provider": "Hello",
-      "model": "Belgee X50+",
+      "model": "Belgee X50+ без оклейки",
       "tag": "Официальный сайт · 2026-11-25",
       "move": 0.43,
       "park": 0.23,
@@ -413,57 +566,57 @@
         },
         {
           "minutes": 30,
-          "price": 8.0,
+          "price": 8,
           "label": "30 минут"
         },
         {
           "minutes": 60,
-          "price": 14.0,
+          "price": 14,
           "label": "60 минут"
         },
         {
           "minutes": 180,
-          "price": 42.0,
+          "price": 42,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 63.0,
+          "price": 63,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 73.0,
+          "price": 73,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 144.0,
+          "price": 144,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 211.0,
+          "price": 211,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 349.0,
+          "price": 349,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 489.0,
+          "price": 489,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 959.0,
+          "price": 959,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 2055.0,
+          "price": 2055,
           "label": "30 суток"
         }
       ],
@@ -554,57 +707,57 @@
         },
         {
           "minutes": 30,
-          "price": 8.0,
+          "price": 8,
           "label": "30 минут"
         },
         {
           "minutes": 60,
-          "price": 14.0,
+          "price": 14,
           "label": "60 минут"
         },
         {
           "minutes": 180,
-          "price": 42.0,
+          "price": 42,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 63.0,
+          "price": 63,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 73.0,
+          "price": 73,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 144.0,
+          "price": 144,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 211.0,
+          "price": 211,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 349.0,
+          "price": 349,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 489.0,
+          "price": 489,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 959.0,
+          "price": 959,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 2055.0,
+          "price": 2055,
           "label": "30 суток"
         }
       ],
@@ -642,52 +795,52 @@
         },
         {
           "minutes": 180,
-          "price": 19.0,
+          "price": 19,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 29.0,
+          "price": 29,
           "label": "6 ч."
         },
         {
           "minutes": 540,
-          "price": 39.0,
+          "price": 39,
           "label": "9 ч."
         },
         {
           "minutes": 1440,
-          "price": 49.0,
+          "price": 49,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 96.0,
+          "price": 96,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 139.0,
+          "price": 139,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 229.0,
+          "price": 229,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 319.0,
+          "price": 319,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 629.0,
+          "price": 629,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1348.0,
+          "price": 1348,
           "label": "30 суток"
         }
       ],
@@ -710,57 +863,57 @@
         },
         {
           "minutes": 30,
-          "price": 8.0,
+          "price": 8,
           "label": "30 минут"
         },
         {
           "minutes": 60,
-          "price": 14.0,
+          "price": 14,
           "label": "60 минут"
         },
         {
           "minutes": 180,
-          "price": 42.0,
+          "price": 42,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 63.0,
+          "price": 63,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 73.0,
+          "price": 73,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 144.0,
+          "price": 144,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 211.0,
+          "price": 211,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 349.0,
+          "price": 349,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 489.0,
+          "price": 489,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 959.0,
+          "price": 959,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 2055.0,
+          "price": 2055,
           "label": "30 суток"
         }
       ],
@@ -793,47 +946,47 @@
         },
         {
           "minutes": 180,
-          "price": 31.0,
+          "price": 31,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 41.0,
+          "price": 41,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 69.0,
+          "price": 69,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 129.0,
+          "price": 129,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 189.0,
+          "price": 189,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 309.0,
+          "price": 309,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 429.0,
+          "price": 429,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 849.0,
+          "price": 849,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1819.0,
+          "price": 1819,
           "label": "30 суток"
         }
       ],
@@ -856,57 +1009,57 @@
         },
         {
           "minutes": 30,
-          "price": 8.0,
+          "price": 8,
           "label": "30 минут"
         },
         {
           "minutes": 60,
-          "price": 14.0,
+          "price": 14,
           "label": "60 минут"
         },
         {
           "minutes": 180,
-          "price": 42.0,
+          "price": 42,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 63.0,
+          "price": 63,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 73.0,
+          "price": 73,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 144.0,
+          "price": 144,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 211.0,
+          "price": 211,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 349.0,
+          "price": 349,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 489.0,
+          "price": 489,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 959.0,
+          "price": 959,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 2055.0,
+          "price": 2055,
           "label": "30 суток"
         }
       ],
@@ -939,47 +1092,47 @@
         },
         {
           "minutes": 180,
-          "price": 31.0,
+          "price": 31,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 41.0,
+          "price": 41,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 69.0,
+          "price": 69,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 129.0,
+          "price": 129,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 189.0,
+          "price": 189,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 309.0,
+          "price": 309,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 429.0,
+          "price": 429,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 849.0,
+          "price": 849,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1819.0,
+          "price": 1819,
           "label": "30 суток"
         }
       ],
@@ -1002,57 +1155,57 @@
         },
         {
           "minutes": 30,
-          "price": 8.0,
+          "price": 8,
           "label": "30 минут"
         },
         {
           "minutes": 60,
-          "price": 14.0,
+          "price": 14,
           "label": "60 минут"
         },
         {
           "minutes": 180,
-          "price": 42.0,
+          "price": 42,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 63.0,
+          "price": 63,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 73.0,
+          "price": 73,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 144.0,
+          "price": 144,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 211.0,
+          "price": 211,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 349.0,
+          "price": 349,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 489.0,
+          "price": 489,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 959.0,
+          "price": 959,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 2055.0,
+          "price": 2055,
           "label": "30 суток"
         }
       ],
@@ -1075,57 +1228,57 @@
         },
         {
           "minutes": 30,
-          "price": 8.0,
+          "price": 8,
           "label": "30 минут"
         },
         {
           "minutes": 60,
-          "price": 14.0,
+          "price": 14,
           "label": "60 минут"
         },
         {
           "minutes": 180,
-          "price": 42.0,
+          "price": 42,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 63.0,
+          "price": 63,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 73.0,
+          "price": 73,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 144.0,
+          "price": 144,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 211.0,
+          "price": 211,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 349.0,
+          "price": 349,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 489.0,
+          "price": 489,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 959.0,
+          "price": 959,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 2055.0,
+          "price": 2055,
           "label": "30 суток"
         }
       ],
@@ -1163,52 +1316,52 @@
         },
         {
           "minutes": 180,
-          "price": 19.0,
+          "price": 19,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 29.0,
+          "price": 29,
           "label": "6 ч."
         },
         {
           "minutes": 540,
-          "price": 39.0,
+          "price": 39,
           "label": "9 ч."
         },
         {
           "minutes": 1440,
-          "price": 49.0,
+          "price": 49,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 96.0,
+          "price": 96,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 139.0,
+          "price": 139,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 229.0,
+          "price": 229,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 319.0,
+          "price": 319,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 629.0,
+          "price": 629,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1348.0,
+          "price": 1348,
           "label": "30 суток"
         }
       ],
@@ -1231,57 +1384,57 @@
         },
         {
           "minutes": 30,
-          "price": 8.0,
+          "price": 8,
           "label": "30 минут"
         },
         {
           "minutes": 60,
-          "price": 14.0,
+          "price": 14,
           "label": "60 минут"
         },
         {
           "minutes": 180,
-          "price": 42.0,
+          "price": 42,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 63.0,
+          "price": 63,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 73.0,
+          "price": 73,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 144.0,
+          "price": 144,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 211.0,
+          "price": 211,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 349.0,
+          "price": 349,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 489.0,
+          "price": 489,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 959.0,
+          "price": 959,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 2055.0,
+          "price": 2055,
           "label": "30 суток"
         }
       ],
@@ -1319,52 +1472,52 @@
         },
         {
           "minutes": 180,
-          "price": 19.0,
+          "price": 19,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 29.0,
+          "price": 29,
           "label": "6 ч."
         },
         {
           "minutes": 540,
-          "price": 39.0,
+          "price": 39,
           "label": "9 ч."
         },
         {
           "minutes": 1440,
-          "price": 49.0,
+          "price": 49,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 96.0,
+          "price": 96,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 139.0,
+          "price": 139,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 229.0,
+          "price": 229,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 319.0,
+          "price": 319,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 629.0,
+          "price": 629,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1348.0,
+          "price": 1348,
           "label": "30 суток"
         }
       ],
@@ -1387,37 +1540,37 @@
         },
         {
           "minutes": 1440,
-          "price": 59.0,
+          "price": 59,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 109.0,
+          "price": 109,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 159.0,
+          "price": 159,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 259.0,
+          "price": 259,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 359.0,
+          "price": 359,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 709.0,
+          "price": 709,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1519.0,
+          "price": 1519,
           "label": "30 суток"
         }
       ],
@@ -1450,47 +1603,47 @@
         },
         {
           "minutes": 180,
-          "price": 31.0,
+          "price": 31,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 41.0,
+          "price": 41,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 69.0,
+          "price": 69,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 129.0,
+          "price": 129,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 189.0,
+          "price": 189,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 309.0,
+          "price": 309,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 429.0,
+          "price": 429,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 849.0,
+          "price": 849,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1819.0,
+          "price": 1819,
           "label": "30 суток"
         }
       ],
@@ -1523,47 +1676,47 @@
         },
         {
           "minutes": 180,
-          "price": 31.0,
+          "price": 31,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 41.0,
+          "price": 41,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 69.0,
+          "price": 69,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 129.0,
+          "price": 129,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 189.0,
+          "price": 189,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 309.0,
+          "price": 309,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 429.0,
+          "price": 429,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 849.0,
+          "price": 849,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1819.0,
+          "price": 1819,
           "label": "30 суток"
         }
       ],
@@ -1608,47 +1761,47 @@
         },
         {
           "minutes": 180,
-          "price": 31.0,
+          "price": 31,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 41.0,
+          "price": 41,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 69.0,
+          "price": 69,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 129.0,
+          "price": 129,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 189.0,
+          "price": 189,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 309.0,
+          "price": 309,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 429.0,
+          "price": 429,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 849.0,
+          "price": 849,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1819.0,
+          "price": 1819,
           "label": "30 суток"
         }
       ],
@@ -1681,47 +1834,47 @@
         },
         {
           "minutes": 180,
-          "price": 31.0,
+          "price": 31,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 41.0,
+          "price": 41,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 69.0,
+          "price": 69,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 129.0,
+          "price": 129,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 189.0,
+          "price": 189,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 309.0,
+          "price": 309,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 429.0,
+          "price": 429,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 849.0,
+          "price": 849,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1819.0,
+          "price": 1819,
           "label": "30 суток"
         }
       ],
@@ -1759,52 +1912,52 @@
         },
         {
           "minutes": 180,
-          "price": 19.0,
+          "price": 19,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 29.0,
+          "price": 29,
           "label": "6 ч."
         },
         {
           "minutes": 540,
-          "price": 39.0,
+          "price": 39,
           "label": "9 ч."
         },
         {
           "minutes": 1440,
-          "price": 49.0,
+          "price": 49,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 96.0,
+          "price": 96,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 139.0,
+          "price": 139,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 229.0,
+          "price": 229,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 319.0,
+          "price": 319,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 629.0,
+          "price": 629,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1348.0,
+          "price": 1348,
           "label": "30 суток"
         }
       ],
@@ -1814,7 +1967,7 @@
     {
       "id": "hello-polo-new",
       "provider": "Hello",
-      "model": "Volkswagen Polo NEW",
+      "model": "Volkswagen Polo NEW с оклейкой",
       "tag": "Официальный сайт · 23.11.2026",
       "move": 0.37,
       "park": 0.17,
@@ -1892,7 +2045,7 @@
     {
       "id": "hello-polo-nw",
       "provider": "Hello",
-      "model": "Volkswagen Polo New",
+      "model": "Volkswagen Polo без оклейки",
       "tag": "Официальный сайт · 2026-11-25",
       "move": 0.37,
       "park": 0.17,
@@ -1920,52 +2073,52 @@
         },
         {
           "minutes": 180,
-          "price": 19.0,
+          "price": 19,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 29.0,
+          "price": 29,
           "label": "6 ч."
         },
         {
           "minutes": 540,
-          "price": 39.0,
+          "price": 39,
           "label": "9 ч."
         },
         {
           "minutes": 1440,
-          "price": 49.0,
+          "price": 49,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 96.0,
+          "price": 96,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 139.0,
+          "price": 139,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 229.0,
+          "price": 229,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 319.0,
+          "price": 319,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 629.0,
+          "price": 629,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1348.0,
+          "price": 1348,
           "label": "30 суток"
         }
       ],
@@ -2076,47 +2229,47 @@
         },
         {
           "minutes": 180,
-          "price": 31.0,
+          "price": 31,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 41.0,
+          "price": 41,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 69.0,
+          "price": 69,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 129.0,
+          "price": 129,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 189.0,
+          "price": 189,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 309.0,
+          "price": 309,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 429.0,
+          "price": 429,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 849.0,
+          "price": 849,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1819.0,
+          "price": 1819,
           "label": "30 суток"
         }
       ],
@@ -2149,47 +2302,47 @@
         },
         {
           "minutes": 180,
-          "price": 31.0,
+          "price": 31,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 41.0,
+          "price": 41,
           "label": "6 ч."
         },
         {
           "minutes": 1440,
-          "price": 69.0,
+          "price": 69,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 129.0,
+          "price": 129,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 189.0,
+          "price": 189,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 309.0,
+          "price": 309,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 429.0,
+          "price": 429,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 849.0,
+          "price": 849,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1819.0,
+          "price": 1819,
           "label": "30 суток"
         }
       ],
@@ -2227,52 +2380,52 @@
         },
         {
           "minutes": 180,
-          "price": 19.0,
+          "price": 19,
           "label": "3 ч."
         },
         {
           "minutes": 360,
-          "price": 29.0,
+          "price": 29,
           "label": "6 ч."
         },
         {
           "minutes": 540,
-          "price": 39.0,
+          "price": 39,
           "label": "9 ч."
         },
         {
           "minutes": 1440,
-          "price": 49.0,
+          "price": 49,
           "label": "1 суток"
         },
         {
           "minutes": 2880,
-          "price": 96.0,
+          "price": 96,
           "label": "2 суток"
         },
         {
           "minutes": 4320,
-          "price": 139.0,
+          "price": 139,
           "label": "3 суток"
         },
         {
           "minutes": 7200,
-          "price": 229.0,
+          "price": 229,
           "label": "5 суток"
         },
         {
           "minutes": 10080,
-          "price": 319.0,
+          "price": 319,
           "label": "7 суток"
         },
         {
           "minutes": 20160,
-          "price": 629.0,
+          "price": 629,
           "label": "14 суток"
         },
         {
           "minutes": 43200,
-          "price": 1348.0,
+          "price": 1348,
           "label": "30 суток"
         }
       ],

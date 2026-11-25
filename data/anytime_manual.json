@@ -1,3 +1,157 @@
 {
-  "vehicles": {}
+  "vehicles": {
+    "anytime-belgee-x50-wrapped": {
+      "id": "anytime-belgee-x50-wrapped",
+      "provider": "Anytime",
+      "model": "Belgee X50",
+      "tag": "CarSync · справочные цены · 25.11.2026",
+      "move": 0.43,
+      "park": 0.19,
+      "minuteKm": null,
+      "freeBooking": null,
+      "hourBases": {},
+      "hourKms": {},
+      "hourKmRate": [],
+      "hourExact": {},
+      "customExcessMin": 0,
+      "customExcessKm": 0,
+      "specials": {},
+      "specialKm": null,
+      "specialExcessDrive": null,
+      "specialExcessPark": null,
+      "day0": null,
+      "dayExact": {},
+      "dayKms": [],
+      "infoOnly": true,
+      "publicRates": {
+        "minute": 0.43,
+        "parking": 0.19,
+        "packages": [
+          {
+            "minutes": 120,
+            "label": "2 часа",
+            "price": 9.99,
+            "kmIncluded": null
+          },
+          {
+            "minutes": 1440,
+            "label": "24 часа",
+            "price": 33.5,
+            "kmIncluded": 100
+          },
+          {
+            "minutes": 2880,
+            "label": "48 часов",
+            "price": 64.9,
+            "kmIncluded": null
+          }
+        ],
+        "note": "Справочные цены без бонусов. Не подтверждены лимит километров для пакетов 2 и 48 часов и ставка за перепробег; поэтому модель пока не участвует в сравнении.",
+        "source": "CarSync — независимый справочник, не официальный источник Anytime",
+        "sourceUrl": "https://carsync.by/cars/9310aa8"
+      }
+    },
+    "anytime-belgee-x50-unwrapped": {
+      "id": "anytime-belgee-x50-unwrapped",
+      "provider": "Anytime",
+      "model": "Belgee X50 (без оклейки)",
+      "tag": "CarSync · справочные цены · 25.11.2026",
+      "move": 0.44,
+      "park": 0.19,
+      "minuteKm": null,
+      "freeBooking": null,
+      "hourBases": {},
+      "hourKms": {},
+      "hourKmRate": [],
+      "hourExact": {},
+      "customExcessMin": 0,
+      "customExcessKm": 0,
+      "specials": {},
+      "specialKm": null,
+      "specialExcessDrive": null,
+      "specialExcessPark": null,
+      "day0": null,
+      "dayExact": {},
+      "dayKms": [],
+      "infoOnly": true,
+      "publicRates": {
+        "minute": 0.44,
+        "parking": 0.19,
+        "packages": [
+          {
+            "minutes": 120,
+            "label": "2 часа",
+            "price": 9.99,
+            "kmIncluded": null
+          },
+          {
+            "minutes": 1440,
+            "label": "24 часа",
+            "price": 33.5,
+            "kmIncluded": 100
+          },
+          {
+            "minutes": 2880,
+            "label": "48 часов",
+            "price": 64.9,
+            "kmIncluded": null
+          }
+        ],
+        "note": "Справочные цены без бонусов. Не подтверждены лимит километров для пакетов 2 и 48 часов и ставка за перепробег; поэтому модель пока не участвует в сравнении.",
+        "source": "CarSync — независимый справочник, не официальный источник Anytime",
+        "sourceUrl": "https://carsync.by/cars/9169aa8"
+      }
+    },
+    "anytime-haval-jolion-black-edition": {
+      "id": "anytime-haval-jolion-black-edition",
+      "provider": "Anytime",
+      "model": "Haval Jolion Black Edition",
+      "tag": "CarSync · справочные цены · 25.11.2026",
+      "move": 0.4,
+      "park": 0.19,
+      "minuteKm": null,
+      "freeBooking": null,
+      "hourBases": {},
+      "hourKms": {},
+      "hourKmRate": [],
+      "hourExact": {},
+      "customExcessMin": 0,
+      "customExcessKm": 0,
+      "specials": {},
+      "specialKm": null,
+      "specialExcessDrive": null,
+      "specialExcessPark": null,
+      "day0": null,
+      "dayExact": {},
+      "dayKms": [],
+      "infoOnly": true,
+      "publicRates": {
+        "minute": 0.4,
+        "parking": 0.19,
+        "packages": [
+          {
+            "minutes": 120,
+            "label": "2 часа",
+            "price": 9.99,
+            "kmIncluded": null
+          },
+          {
+            "minutes": 1440,
+            "label": "24 часа",
+            "price": 33.5,
+            "kmIncluded": 100
+          },
+          {
+            "minutes": 2880,
+            "label": "48 часов",
+            "price": 64.9,
+            "kmIncluded": null
+          }
+        ],
+        "note": "Справочные цены без бонусов. Не подтверждены лимит километров для пакетов 2 и 48 часов и ставка за перепробег; поэтому модель пока не участвует в сравнении.",
+        "source": "CarSync — независимый справочник, не официальный источник Anytime",
+        "sourceUrl": "https://carsync.by/carsharings/anytime/models/haval-jolion-black-edition"
+      }
+    }
+  }
 }
