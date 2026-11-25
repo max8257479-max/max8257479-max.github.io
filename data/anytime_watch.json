@@ -64,6 +64,21 @@
           "calculator": 0.19,
           "public_source": 0.19,
           "differs": false
+        },
+        "specials.2h.price": {
+          "calculator": 9.99,
+          "public_source": 9.99,
+          "differs": false
+        },
+        "specials.24h.price": {
+          "calculator": 33.5,
+          "public_source": 33.5,
+          "differs": false
+        },
+        "specials.48h.price": {
+          "calculator": 64.9,
+          "public_source": 64.9,
+          "differs": false
         }
       }
     },
@@ -87,6 +102,21 @@
         "park": {
           "calculator": 0.19,
           "public_source": 0.19,
+          "differs": false
+        },
+        "specials.2h.price": {
+          "calculator": 9.99,
+          "public_source": 9.99,
+          "differs": false
+        },
+        "specials.24h.price": {
+          "calculator": 33.5,
+          "public_source": 33.5,
+          "differs": false
+        },
+        "specials.48h.price": {
+          "calculator": 64.9,
+          "public_source": 64.9,
           "differs": false
         }
       }
