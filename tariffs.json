@@ -1559,11 +1559,11 @@
     {
       "id": "hello-emgrand",
       "provider": "Hello",
-      "model": "Geely Emgrand Flagship",
+      "model": "Geely Emgrand Flagship с оклейкой",
       "tag": "Официальный сайт · 2026-11-25",
       "move": 0.37,
       "park": 0.17,
-      "km": 0.53,
+      "km": 0.49,
       "packages": [
         {
           "minutes": 1,

@@ -7,7 +7,7 @@
     {
       "model": "Belgee S50",
       "url": "https://carsync.by/carsharings/anytime/models/belgee-s50",
-      "move": 0.38,
+      "move": 0.34,
       "park": 0.19,
       "specials": {
         "2h": 8.99,
@@ -18,8 +18,8 @@
       "comparison": {
         "move": {
           "calculator": 0.38,
-          "public_source": 0.38,
-          "differs": false
+          "public_source": 0.34,
+          "differs": true
         },
         "park": {
           "calculator": 0.19,
@@ -161,5 +161,11 @@
       }
     }
   ],
-  "pendingReview": []
+  "pendingReview": [
+    {
+      "model": "Belgee S50",
+      "reason": "Расхождение со снимком приложения; нужна ручная проверка",
+      "url": "https://carsync.by/carsharings/anytime/models/belgee-s50"
+    }
+  ]
 }
