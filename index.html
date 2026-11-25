@@ -63,7 +63,7 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
 <div class="formgrid">
 <div class="field"><label for="km">Километров</label><input id="km" type="number" step="1" min="0" max="20000" value="30"><small>Общий пробег</small></div>
 <fieldset class="field timefield"><legend>Время аренды</legend><div class="timepair"><div><input id="hours" aria-label="Время аренды — часы" type="number" step="1" min="0" max="720" value="2"><small>часы</small></div><div><input id="minutes" aria-label="Время аренды — минуты" type="number" step="1" min="0" max="59" value="0"><small>минуты</small></div></div></fieldset>
-<fieldset class="field timefield"><legend>Hello: время на первом и последнем участках (сумма)</legend><div class="timepair"><div><input id="driveHours" aria-label="Время в дороге — часы" type="number" step="1" min="0" max="720" value="1"><small>часы</small></div><div><input id="driveMinutes" aria-label="Время в дороге — минуты" type="number" step="1" min="0" max="59" value="30"><small>минуты</small></div></div></fieldset>
+<fieldset class="field timefield"><legend>Hello: время первого + последнего участков</legend><div class="timepair"><div><input id="driveHours" aria-label="Время первого и последнего участков — часы" type="number" step="1" min="0" max="720" value="1"><small>часы</small></div><div><input id="driveMinutes" aria-label="Время первого и последнего участков — минуты" type="number" step="1" min="0" max="59" value="30"><small>минуты</small></div></div></fieldset>
 <div class="field waiting"><label for="parking">Ожидание</label><output id="parking" aria-live="polite" for="hours minutes driveHours driveMinutes">0 ч 30 мин</output><small>Аренда − время в дороге · для расчёта абонемента Hello</small></div>
 </div><section class="hello-km-block"><div class="field"><label for="helloPackageKm">Hello: километраж для абонемента</label><input id="helloPackageKm" type="number" inputmode="decimal" step="any" min="0" max="30" value="0" aria-describedby="helloKmError"><div id="helloKmError" class="hello-km-error" aria-live="polite" hidden></div></div></section><div class="controls"><button class="chip active" data-provider="all">Все сервисы</button><button class="chip" data-provider="Anytime">Anytime</button><button class="chip" data-provider="Hello">Hello</button><button id="reset" class="btnsecondary" style="margin-left:auto">Сбросить</button></div>
 </div>
@@ -453,162 +453,433 @@ let VEHICLES=[
   "source": "Скриншоты и видео приложения Anytime, 23.11.2026"
  },
  {
-  "id": "anytime-belgee-x50-wrapped",
+  "id": "anytime-haval-jolion-black-edition",
   "provider": "Anytime",
-  "model": "Belgee X50",
-  "tag": "CarSync · справочные цены · 25.11.2026",
-  "move": 0.43,
+  "model": "Haval Jolion Black Edition",
+  "tag": "Видео приложения Anytime · 25.11.2026",
+  "move": 0.4,
   "park": 0.19,
   "minuteKm": null,
-  "freeBooking": null,
-  "hourBases": {},
-  "hourKms": {},
-  "hourKmRate": [],
-  "hourExact": {},
-  "customExcessMin": 0,
-  "customExcessKm": 0,
-  "specials": {},
-  "specialKm": null,
-  "specialExcessDrive": null,
-  "specialExcessPark": null,
-  "day0": null,
-  "dayExact": {},
-  "dayKms": [],
-  "infoOnly": true,
-  "publicRates": {
-   "minute": 0.43,
-   "parking": 0.19,
-   "packages": [
-    {
-     "minutes": 120,
-     "label": "2 часа",
-     "price": 9.99,
-     "kmIncluded": null
-    },
-    {
-     "minutes": 1440,
-     "label": "24 часа",
-     "price": 33.5,
-     "kmIncluded": 100
-    },
-    {
-     "minutes": 2880,
-     "label": "48 часов",
-     "price": 64.9,
-     "kmIncluded": null
-    }
+  "freeBooking": 15,
+  "hourBases": {
+   "1": 10.44,
+   "2": 14.88,
+   "3": 18.72,
+   "4": 22.24,
+   "5": 27.8,
+   "6": 29.34,
+   "7": 34.23,
+   "8": 39.12,
+   "9": 43.96,
+   "10": 48.9,
+   "12": 58.61
+  },
+  "hourKms": {
+   "1": [
+    0,
+    10,
+    20,
+    35,
+    50
    ],
-   "note": "Справочные цены без бонусов. Не подтверждены лимит километров для пакетов 2 и 48 часов и ставка за перепробег; поэтому модель пока не участвует в сравнении.",
-   "source": "CarSync — независимый справочник, не официальный источник Anytime",
-   "sourceUrl": "https://carsync.by/cars/9310aa8"
-  }
+   "2": [
+    0,
+    15,
+    30,
+    50,
+    75,
+    100
+   ],
+   "3": [
+    0,
+    20,
+    35,
+    55,
+    80,
+    100,
+    130,
+    160
+   ],
+   "4": [
+    0,
+    30,
+    60,
+    80,
+    100,
+    150,
+    200
+   ],
+   "5": [
+    0,
+    40,
+    70,
+    100,
+    150,
+    200
+   ],
+   "6": [
+    0,
+    50,
+    100,
+    150,
+    200,
+    250,
+    300
+   ],
+   "7": [
+    0,
+    55,
+    110,
+    160,
+    220,
+    260,
+    330,
+    400
+   ],
+   "8": [
+    0,
+    60,
+    120,
+    170,
+    240,
+    280,
+    350,
+    450
+   ],
+   "9": [
+    0,
+    65,
+    130,
+    180,
+    250,
+    300,
+    380,
+    500
+   ],
+   "10": [
+    0,
+    70,
+    140,
+    190,
+    260,
+    330,
+    400,
+    550
+   ],
+   "12": [
+    0,
+    75,
+    150,
+    200,
+    280,
+    350,
+    450,
+    600
+   ]
+  },
+  "hourKmRate": [
+   0,
+   0.5,
+   0.48,
+   0.47,
+   0.46
+  ],
+  "hourExact": {
+   "2:0": 14.88,
+   "6:50": 54.3,
+   "6:150": 99.8,
+   "9:130": 106.36,
+   "9:300": 181.96,
+   "12:350": 219.61
+  },
+  "customExcessMin": 0.2,
+  "customExcessKm": 0.51,
+  "specials": {
+   "2h": {
+    "label": "1+1 час в подарок",
+    "minutes": 120,
+    "price": 9.99
+   },
+   "24h": {
+    "label": "Свободный 24",
+    "minutes": 1440,
+    "price": 33.5
+   },
+   "48h": {
+    "label": "Свободный 48",
+    "minutes": 2880,
+    "price": 64.9
+   }
+  },
+  "specialKm": 0.51,
+  "specialExcessDrive": 0.2,
+  "specialExcessPark": 0.19,
+  "day0": 64.8,
+  "dayExact": {
+   "0": 64.8,
+   "80": 104.8,
+   "120": 122.4,
+   "180": 149.4,
+   "350": 225.8,
+   "500": 294.8
+  },
+  "dayKms": [
+   0,
+   80,
+   120,
+   180,
+   350,
+   500
+  ],
+  "dayObservedKms": [
+   0,
+   350
+  ],
+  "dayRatesEstimated": true,
+  "specialRatesEstimated": true,
+  "infoOnly": false,
+  "publicRates": null,
+  "source": "Видео приложения Anytime от 25.11.2026. Точные почасовые цены из записи закреплены; остальные сочетания и стоимость километров в пакетах 24/48 часов рассчитаны ориентировочно."
  },
  {
   "id": "anytime-belgee-x50-unwrapped",
   "provider": "Anytime",
   "model": "Belgee X50 (без оклейки)",
-  "tag": "CarSync · справочные цены · 25.11.2026",
-  "move": 0.44,
+  "tag": "Видео приложения Anytime · 25.11.2026",
+  "move": 0.42,
   "park": 0.19,
   "minuteKm": null,
-  "freeBooking": null,
-  "hourBases": {},
-  "hourKms": {},
-  "hourKmRate": [],
-  "hourExact": {},
-  "customExcessMin": 0,
-  "customExcessKm": 0,
-  "specials": {},
-  "specialKm": null,
-  "specialExcessDrive": null,
-  "specialExcessPark": null,
-  "day0": null,
-  "dayExact": {},
-  "dayKms": [],
-  "infoOnly": true,
-  "publicRates": {
-   "minute": 0.44,
-   "parking": 0.19,
-   "packages": [
-    {
-     "minutes": 120,
-     "label": "2 часа",
-     "price": 9.99,
-     "kmIncluded": null
-    },
-    {
-     "minutes": 1440,
-     "label": "24 часа",
-     "price": 33.5,
-     "kmIncluded": 100
-    },
-    {
-     "minutes": 2880,
-     "label": "48 часов",
-     "price": 64.9,
-     "kmIncluded": null
-    }
+  "freeBooking": 15,
+  "hourBases": {
+   "1": 10.44,
+   "2": 14.88,
+   "3": 18.72,
+   "4": 22.24,
+   "5": 27.8,
+   "6": 29.34,
+   "7": 34.23,
+   "8": 39.12,
+   "9": 44.01,
+   "10": 48.9,
+   "12": 58.68
+  },
+  "hourKms": {
+   "1": [
+    0,
+    10,
+    20,
+    35,
+    50
    ],
-   "note": "Справочные цены без бонусов. Не подтверждены лимит километров для пакетов 2 и 48 часов и ставка за перепробег; поэтому модель пока не участвует в сравнении.",
-   "source": "CarSync — независимый справочник, не официальный источник Anytime",
-   "sourceUrl": "https://carsync.by/cars/9169aa8"
-  }
+   "2": [
+    0,
+    15,
+    30,
+    50,
+    75,
+    100
+   ],
+   "3": [
+    0,
+    20,
+    35,
+    55,
+    80,
+    100,
+    130,
+    160
+   ],
+   "4": [
+    0,
+    30,
+    60,
+    80,
+    100,
+    150,
+    200
+   ],
+   "5": [
+    0,
+    40,
+    70,
+    100,
+    150,
+    200
+   ],
+   "6": [
+    0,
+    50,
+    100,
+    150,
+    200,
+    250,
+    300
+   ],
+   "7": [
+    0,
+    55,
+    110,
+    160,
+    220,
+    260,
+    330,
+    400
+   ],
+   "8": [
+    0,
+    60,
+    120,
+    170,
+    240,
+    280,
+    350,
+    450
+   ],
+   "9": [
+    0,
+    65,
+    130,
+    180,
+    250,
+    300,
+    380,
+    500
+   ],
+   "10": [
+    0,
+    70,
+    140,
+    190,
+    260,
+    330,
+    400,
+    550
+   ],
+   "12": [
+    0,
+    75,
+    150,
+    200,
+    280,
+    350,
+    450,
+    600
+   ]
+  },
+  "hourKmRate": [
+   0,
+   0.52,
+   0.5,
+   0.49,
+   0.48
+  ],
+  "hourExact": {
+   "1:50": 34.44,
+   "2:50": 39.38,
+   "3:35": 36.22,
+   "3:130": 81.12,
+   "5:200": 123.78,
+   "6:250": 149.3,
+   "7:160": 112.59,
+   "8:60": 70.27,
+   "9:300": 187.96,
+   "10:330": 207.24,
+   "12:600": 346.61
+  },
+  "customExcessMin": 0.2,
+  "customExcessKm": 0.53,
+  "specials": {
+   "2h": {
+    "label": "1+1 час в подарок",
+    "minutes": 120,
+    "price": 9.99
+   },
+   "24h": {
+    "label": "Свободный 24",
+    "minutes": 1440,
+    "price": 33.5
+   },
+   "48h": {
+    "label": "Свободный 48",
+    "minutes": 2880,
+    "price": 64.9
+   }
+  },
+  "specialKm": 0.53,
+  "specialExcessDrive": 0.2,
+  "specialExcessPark": 0.19,
+  "day0": 64.8,
+  "dayExact": {
+   "0": 64.8,
+   "80": 106.4,
+   "120": 124.8,
+   "180": 153,
+   "350": 232.8
+  },
+  "dayKms": [
+   0,
+   80,
+   120,
+   180,
+   350
+  ],
+  "dayObservedKms": [
+   0,
+   120
+  ],
+  "dayRatesEstimated": true,
+  "specialRatesEstimated": true,
+  "infoOnly": false,
+  "publicRates": null,
+  "source": "Видео приложения Anytime от 25.11.2026. Точные почасовые цены из видимых кадров закреплены; остальные сочетания и часть дневных тарифов рассчитаны по отображённым ставкам."
  },
  {
-  "id": "anytime-haval-jolion-black-edition",
+  "id": "anytime-belgee-x50-wrapped",
   "provider": "Anytime",
-  "model": "Haval Jolion Black Edition",
-  "tag": "CarSync · справочные цены · 25.11.2026",
-  "move": 0.4,
+  "model": "Belgee X50",
+  "tag": "Частично подтверждённые тарифы · 25.11.2026",
+  "move": 0.43,
   "park": 0.19,
   "minuteKm": null,
-  "freeBooking": null,
+  "freeBooking": 15,
   "hourBases": {},
   "hourKms": {},
   "hourKmRate": [],
   "hourExact": {},
-  "customExcessMin": 0,
-  "customExcessKm": 0,
-  "specials": {},
-  "specialKm": null,
-  "specialExcessDrive": null,
-  "specialExcessPark": null,
+  "customExcessMin": 0.2,
+  "customExcessKm": 0.53,
+  "specials": {
+   "2h": {
+    "label": "1+1 час в подарок",
+    "minutes": 120,
+    "price": 9.99
+   },
+   "24h": {
+    "label": "Свободный 24",
+    "minutes": 1440,
+    "price": 33.5
+   },
+   "48h": {
+    "label": "Свободный 48",
+    "minutes": 2880,
+    "price": 64.9
+   }
+  },
+  "specialKm": 0.53,
+  "specialExcessDrive": 0.2,
+  "specialExcessPark": 0.19,
   "day0": null,
   "dayExact": {},
   "dayKms": [],
-  "infoOnly": true,
-  "publicRates": {
-   "minute": 0.4,
-   "parking": 0.19,
-   "packages": [
-    {
-     "minutes": 120,
-     "label": "2 часа",
-     "price": 9.99,
-     "kmIncluded": null
-    },
-    {
-     "minutes": 1440,
-     "label": "24 часа",
-     "price": 33.5,
-     "kmIncluded": 100
-    },
-    {
-     "minutes": 2880,
-     "label": "48 часов",
-     "price": 64.9,
-     "kmIncluded": null
-    }
-   ],
-   "note": "Справочные цены без бонусов. Не подтверждены лимит километров для пакетов 2 и 48 часов и ставка за перепробег; поэтому модель пока не участвует в сравнении.",
-   "source": "CarSync — независимый справочник, не официальный источник Anytime",
-   "sourceUrl": "https://carsync.by/carsharings/anytime/models/haval-jolion-black-edition"
-  }
+  "specialRatesEstimated": true,
+  "infoOnly": false,
+  "publicRates": null,
+  "source": "На видео видна ставка минуты 0,43 BYN/мин; цены пакетов 1+1, 24 и 48 часов взяты из справочного источника CarSync. Почасовая и дневная матрицы для версии с оклейкой в записи не показаны; ставка за км для пакетов оценочная."
  },
  {
   "id": "hello-x50-nw",
   "provider": "Hello",
-  "model": "Belgee X50+ без оклейки",
+  "model": "Belgee X50+",
   "tag": "Официальный сайт · 2026-11-25",
   "move": 0.43,
   "park": 0.23,
@@ -2020,84 +2291,6 @@ let VEHICLES=[
   "url": "https://hello.by/cars/skoda-rapid"
  },
  {
-  "id": "hello-polo-new",
-  "provider": "Hello",
-  "model": "Volkswagen Polo NEW с оклейкой",
-  "tag": "Официальный сайт · 23.11.2026",
-  "move": 0.37,
-  "park": 0.17,
-  "km": 0.49,
-  "packages": [
-   {
-    "minutes": 30,
-    "price": 5.9,
-    "label": "30 минут"
-   },
-   {
-    "minutes": 60,
-    "price": 9.9,
-    "label": "60 минут"
-   },
-   {
-    "minutes": 120,
-    "price": 15.9,
-    "label": "2 часа"
-   },
-   {
-    "minutes": 180,
-    "price": 19,
-    "label": "3 часа"
-   },
-   {
-    "minutes": 360,
-    "price": 29,
-    "label": "6 часов"
-   },
-   {
-    "minutes": 540,
-    "price": 39,
-    "label": "9 часов"
-   },
-   {
-    "minutes": 1440,
-    "price": 49,
-    "label": "1 суток"
-   },
-   {
-    "minutes": 2880,
-    "price": 96,
-    "label": "2 суток"
-   },
-   {
-    "minutes": 4320,
-    "price": 139,
-    "label": "3 суток"
-   },
-   {
-    "minutes": 7200,
-    "price": 229,
-    "label": "5 суток"
-   },
-   {
-    "minutes": 10080,
-    "price": 319,
-    "label": "7 суток"
-   },
-   {
-    "minutes": 20160,
-    "price": 629,
-    "label": "14 суток"
-   },
-   {
-    "minutes": 43200,
-    "price": 1348,
-    "label": "30 суток"
-   }
-  ],
-  "source": "https://hello.by/cars/volkswagen-polo-new-wrapped",
-  "url": "https://hello.by/cars/volkswagen-polo-new-wrapped"
- },
- {
   "id": "hello-polo-nw",
   "provider": "Hello",
   "model": "Volkswagen Polo без оклейки",
@@ -2179,6 +2372,84 @@ let VEHICLES=[
   ],
   "source": "https://hello.by/cars/volkswagen-polo",
   "url": "https://hello.by/cars/volkswagen-polo"
+ },
+ {
+  "id": "hello-polo-new",
+  "provider": "Hello",
+  "model": "Volkswagen Polo NEW с оклейкой",
+  "tag": "Официальный сайт · 23.11.2026",
+  "move": 0.37,
+  "park": 0.17,
+  "km": 0.49,
+  "packages": [
+   {
+    "minutes": 30,
+    "price": 5.9,
+    "label": "30 минут"
+   },
+   {
+    "minutes": 60,
+    "price": 9.9,
+    "label": "60 минут"
+   },
+   {
+    "minutes": 120,
+    "price": 15.9,
+    "label": "2 часа"
+   },
+   {
+    "minutes": 180,
+    "price": 19,
+    "label": "3 часа"
+   },
+   {
+    "minutes": 360,
+    "price": 29,
+    "label": "6 часов"
+   },
+   {
+    "minutes": 540,
+    "price": 39,
+    "label": "9 часов"
+   },
+   {
+    "minutes": 1440,
+    "price": 49,
+    "label": "1 суток"
+   },
+   {
+    "minutes": 2880,
+    "price": 96,
+    "label": "2 суток"
+   },
+   {
+    "minutes": 4320,
+    "price": 139,
+    "label": "3 суток"
+   },
+   {
+    "minutes": 7200,
+    "price": 229,
+    "label": "5 суток"
+   },
+   {
+    "minutes": 10080,
+    "price": 319,
+    "label": "7 суток"
+   },
+   {
+    "minutes": 20160,
+    "price": 629,
+    "label": "14 суток"
+   },
+   {
+    "minutes": 43200,
+    "price": 1348,
+    "label": "30 суток"
+   }
+  ],
+  "source": "https://hello.by/cars/volkswagen-polo-new-wrapped",
+  "url": "https://hello.by/cars/volkswagen-polo-new-wrapped"
  },
  {
   "id": "hello-polo-w",
@@ -2538,7 +2809,8 @@ function anytimeOptions(v,t,distance,stop,includeApprox){
   const afterDrive=t>0?extra*drive/t:0, afterPark=extra-afterDrive;
   const over=afterDrive*v.specialExcessDrive+afterPark*v.specialExcessPark;
   const kmCharge=distance*v.specialKm;
-  options.push({label:s.label,cap:s.minutes,quota:0,cost:round2(s.price+kmCharge+over),status:extra>0?'оценка перерасхода':'подтверждено',base:s.price,kmCharge,over,extraKm:0,notes:extra>0?'Превышение времени распределено пропорционально':null});
+  const estimated=!!v.specialRatesEstimated;
+  options.push({label:s.label,cap:s.minutes,quota:0,cost:round2(s.price+kmCharge+over),status:extra>0?'оценка перерасхода':estimated?'ориентировочно':'подтверждено',base:s.price,kmCharge,over,extraKm:0,notes:extra>0?'Превышение времени распределено пропорционально':estimated?'Ставка километра для этого пакета оценочная':null});
  }
  for(const [hours,quotas] of Object.entries(v.hourKms)){
   const h=Number(hours),cap=h*60,base=v.hourBases[hours];
@@ -2560,8 +2832,10 @@ function anytimeOptions(v,t,distance,stop,includeApprox){
   const extraKm=Math.max(0,distance-quota),extraTime=Math.max(0,t-1440);
   const afterDrive=t>0?extraTime*drive/t:0, afterPark=extraTime-afterDrive;
   const over=afterDrive*v.customExcessMin+afterPark*v.park;
+  const observed=Array.isArray(v.dayObservedKms)&&v.dayObservedKms.includes(quota);
+  const estimated=!!v.dayRatesEstimated&&!observed;
   options.push({label:`Дни: 1 сутки + ${quota} км`,cap:1440,quota,cost:round2(base+extraKm*v.customExcessKm+over),
-   status:extraTime>0?'оценка перерасхода':'подтверждено',base,kmCharge:extraKm*v.customExcessKm,extraKm,over,notes:'Цена пакета подтверждена видео'});
+   status:extraTime>0?'оценка перерасхода':estimated?'ориентировочно':'подтверждено',base,kmCharge:extraKm*v.customExcessKm,extraKm,over,notes:estimated?'Цена восстановлена по отображённой скидке; точная сумма не показана':'Цена пакета подтверждена видео'});
  }
  return includeApprox?options:options.filter(p=>p.status==='подтверждено');
 }
@@ -2774,7 +3048,7 @@ function calcAll(){
     const bonus=bonusAmount(pr,o.cost);if(bonus>0){const hint=document.createElement('div');hint.className='bonushint';hint.textContent=`К оплате: ${fmt(o.cost)} · Бонусами: ${fmt(bonus)}`;li.append(hint);}
     const price=document.createElement('strong');price.textContent=`${priceText(pr,o)} BYN`;line.append(li,price);plans.append(line);});
    const source=document.createElement('div');source.className='note';source.style.marginTop='6px';
-   if(pr.url){const link=document.createElement('a');link.href=pr.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Официальный тариф Hello';source.append(link);}else source.textContent='Источник: видео и скриншоты пользователя от 23.11.2026';
+   if(pr.url){const link=document.createElement('a');link.href=pr.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Официальный тариф Hello';source.append(link);}else source.textContent=pr.source||'Источник: видео и скриншоты приложения Anytime';
    plans.append(source);container.append(header,foot,plans);list.append(container);
   });
 

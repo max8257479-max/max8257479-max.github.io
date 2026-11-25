@@ -142,6 +142,8 @@ def parse_hello_page(url: str, html: str, existing_by_url: dict[str, dict]) -> d
     old = existing_by_url.get(canonical_url) or existing_by_url.get(url)
     slug = urlparse(canonical_url).path.rstrip("/").split("/")[-1]
     vehicle_id = old["id"] if old else f"hello-{slug}"
+    if slug == "volkswagen-polo" or vehicle_id == "hello-polo-nw":
+        model = "Volkswagen Polo без оклейки"
 
     result = {
         "id": vehicle_id,
