@@ -118,6 +118,11 @@ def test_route_import_updates_all_four_inputs_and_keeps_manual_edits_independent
         assert f"{key}:false" in app
     assert "markRouteFieldManual(key);calcAll();" in app
     assert "Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=false);" in app
+    assert "routeFieldEditVersion[key]++" in app
+    assert "changedDuringLoad.includes('km')" in app
+    assert "changedDuringLoad.includes('rentalTime')" in app
+    assert "changedDuringLoad.includes('outerDrive')" in app
+    assert "changedDuringLoad.includes('packageKm')" in app
     assert "routeInputTimer=setTimeout" in app
     assert "calculateRouteFromYandexLink(true)" in app
     assert "Маршрут загружен" in app
