@@ -41,7 +41,7 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
 .route-head label{font-size:13px;font-weight:700}
 .route-head span,.route-attribution{font-size:11px;color:var(--muted)}
 .route-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
-.route-entry input{width:100%;min-width:0;height:44px;padding:10px 12px;border:1px solid #c9d5e1;border-radius:10px;background:#fff;color:var(--ink);font:inherit}
+.route-entry input{width:100%;min-width:0;height:44px;padding:10px 12px;border:1px solid #c9d5e1;border-radius:10px;background:#fff;color:var(--ink);font:inherit}.route-entry input::placeholder{color:#aeb9c5;opacity:1}
 .route-entry input:focus{outline:2px solid #68b6ae;border-color:#68b6ae}
 .route-entry button{border:1px solid var(--green);border-radius:10px;background:var(--green);color:#fff;padding:0 16px;font-weight:650}
 .route-entry button:disabled{opacity:.6;cursor:wait}
@@ -70,9 +70,9 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
 .route-leg-warning{display:block;color:#946200;font-size:10px;line-height:1.35;font-weight:650}
 
 .trip-inputs{grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch}
-.hello-inputs{margin-top:16px;padding:15px 16px;border:1px solid #cfe2d6;border-radius:13px;background:#f8fbf9}
+.hello-inputs{margin-top:16px;padding:15px 16px;border:1px solid #dbe6f0;border-radius:13px;background:linear-gradient(135deg,#f4f8fc 0%,#f9fbfd 100%)}
 .hello-inputs-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-.hello-inputs-head h3{margin:0;font-size:19px;font-weight:800;letter-spacing:-.3px;color:#126346}
+.hello-inputs-head h3{margin:0;font-size:19px;font-weight:800;letter-spacing:-.3px;color:#334b62}
 .hello-inputs-head p{margin:3px 0 0;font-size:12px;color:var(--muted)}
 .hello-inputs-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
 .hello-inputs-grid .field{min-width:0}
@@ -83,8 +83,8 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
 @media(max-width:790px){.trip-inputs{grid-template-columns:repeat(2,minmax(0,1fr))}.hello-inputs-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:460px){.trip-inputs,.hello-inputs-grid{grid-template-columns:1fr}.hello-inputs{padding:13px}}
 
-.trip-distance-field,.trip-total-time-field{padding:9px 10px;min-width:0;border:1px solid #dbe6f0;border-radius:11px;background:linear-gradient(135deg,#f4f8fc 0%,#f9fbfd 100%);box-shadow:0 2px 8px rgba(40,66,95,.055)}
-.trip-distance-field label,.trip-total-time-field label{display:block;margin:0 0 7px;font-size:13px;font-weight:750;color:#334b62}
+.trip-distance-field,.trip-total-time-field{padding:9px 10px;min-width:0;border:1px solid #cfe2d6;border-radius:11px;background:linear-gradient(135deg,#f0f8f3 0%,#f8fbf9 100%);box-shadow:0 2px 8px rgba(40,66,95,.055)}
+.trip-distance-field label,.trip-total-time-field label{display:block;margin:0 0 7px;font-size:13px;font-weight:750;color:#315a48}
 .hello-segments{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .hello-segment-card{min-width:0;padding:13px;border:1px solid #d8e5dd;border-radius:11px;background:#fff}
 .hello-segment-card h4,.hello-subgroup h4{margin:0 0 10px;font-size:14px;font-weight:800;color:#244b3a}
@@ -103,7 +103,7 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
 </style></head><body><div class="wrap"><header><div><h1>Anytime <span style="color:#93a2b5">vs</span> Hello</h1></div><div class="badgetop" id="dataStatus" title="Hello: официальный сайт. Anytime: публичная проверка и ручное подтверждение полной тарифной матрицы.">Данные: 25.11.2026 · резервная база</div></header>
 <div class="panel"><section class="route-panel" aria-label="Маршрут">
  <div class="route-head"><label for="routeUrl">Маршрут</label><span>Ссылка на Яндекс Карты</span></div>
- <div class="route-entry"><input id="routeUrl" type="url" inputmode="url" placeholder="Ссылка Я.Карт" autocomplete="off"><button id="routeCalculate" type="button">Обновить по ссылке</button></div>
+ <div class="route-entry"><input id="routeUrl" type="url" inputmode="url" placeholder="Ссылка маршрута" autocomplete="off"><button id="routeCalculate" type="button">Обновить по ссылке</button></div>
  <div id="routeStatus" class="route-status" aria-live="polite"></div>
  <details id="routeDetails" class="route-details" hidden><summary id="routeDetailsSummary">Проверить участки маршрута</summary><div id="routeLegList" class="route-leg-list"></div></details>
  <div class="route-attribution">Медиана результатов <a href="https://project-osrm.org/" target="_blank" rel="noopener">OSRM</a>, <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a>, <a href="https://brouter.de/" target="_blank" rel="noopener">BRouter</a> · Данные <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap (ODbL)</a></div>
