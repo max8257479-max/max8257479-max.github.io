@@ -3213,7 +3213,7 @@ $('routeUrl').addEventListener('input',()=>{
  if(routeInputTimer)clearTimeout(routeInputTimer);
  routeInputTimer=null;
  if(!value){
-  routeRequestId++;routeInFlightUrl='';routeImported=false;routePointCount=0;routeLegCount=0;lastAppliedRouteLink='';routePendingEditVersion=null;
+  routeRequestId++;routeInFlightUrl='';routeImported=false;routePointCount=0;routeLegCount=0;lastAppliedRouteLink='';routePendingEditVersion=null;routeSourceLabel='';routeSpreadCount=0;routeProviderWarning='';
   button.disabled=false;button.textContent='Обновить по ссылке';
   status.textContent=ROUTE_STATUS_DEFAULT;status.className='route-status';
   $('routeDetails').hidden=true;$('routeLegList').replaceChildren();
@@ -3244,7 +3244,7 @@ $('reset').addEventListener('click',()=>{
  for(const [id,v] of [['km','30'],['hours','2'],['minutes','0'],['driveHours','1'],['driveMinutes','30'],['helloPackageKm','0']])$(id).value=v;
  $('routeUrl').value='';
  if(routeInputTimer)clearTimeout(routeInputTimer);
- routeInputTimer=null;routeRequestId++;routeInFlightUrl='';lastAppliedRouteLink='';routeImported=false;routePointCount=0;routeLegCount=0;routePendingEditVersion=null;applyingRouteValues=false;
+ routeInputTimer=null;routeRequestId++;routeInFlightUrl='';lastAppliedRouteLink='';routeImported=false;routePointCount=0;routeLegCount=0;routePendingEditVersion=null;routeSourceLabel='';routeSpreadCount=0;routeProviderWarning='';applyingRouteValues=false;
  Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=false);
  $('routeStatus').textContent=ROUTE_STATUS_DEFAULT;$('routeStatus').className='route-status';
  $('routeDetails').hidden=true;$('routeLegList').replaceChildren();
