@@ -124,7 +124,7 @@ def test_route_import_updates_all_four_inputs_and_keeps_manual_edits_independent
     assert "changedDuringLoad.includes('outerDrive')" in app
     assert "changedDuringLoad.includes('packageKm')" in app
     assert "routeInputTimer=setTimeout" in app
-    assert "calculateRouteFromYandexLink(true)" in app
+    assert "calculateRouteFromYandexLink(true,snapshot)" in app
     assert "Маршрут загружен" in app
     assert "Загружаем маршрут" in app
     assert "Изменено вручную" in app
