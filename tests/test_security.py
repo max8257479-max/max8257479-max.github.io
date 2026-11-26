@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_frontend_uses_external_script_and_strict_content_security_policy():
     html = (ROOT / "index.html").read_text(encoding="utf-8")
-    assert re.search(r'<script src="\\./app\\.js(?:\\?v=\\d+)?" defer></script>', html)
+    assert re.search(r'<script src="\./app\.js(?:\?v=\d+)?" defer></script>', html)
     assert re.search(r"<script(?![^>]*\bsrc=)[^>]*>", html, re.I) is None
     assert "script-src 'self'" in html
     assert "connect-src 'self' https://router.project-osrm.org https://valhalla1.openstreetmap.de https://brouter.de" in html
