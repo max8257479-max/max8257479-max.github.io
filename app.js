@@ -2690,6 +2690,7 @@ let VEHICLES=[
 ];
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtFinalPrice=n=>{const rounded=Math.round((Number(n)+Number.EPSILON)*10)/10;return rounded.toLocaleString('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1});};
 const round2=n=>Math.round((n+Number.EPSILON)*100)/100;
 const safe=n=>Math.max(0,Number(n)||0);
 const FALLBACK_DATA_DATE='25.11.2026';
@@ -2880,7 +2881,7 @@ async function calculateRouteFromYandexLink(){
 const bonusAmount=(v,cost)=>v.provider==='Anytime'?Math.round(cost*0.10*100)/100:0;
 const effectiveCost=(v,cost)=>v.provider==='Anytime'?Math.round(cost*0.90*100)/100:cost;
 const compactLabel=label=>label.replace(/^Часы: /,'').replace(/^Дни: /,'');
-const priceText=(v,o)=>`${o.status==='подтверждено'?'':'≈ '}${fmt(effectiveCost(v,o.cost))}`;
+const priceText=(v,o)=>`${o.status==='подтверждено'?'':'≈ '}${fmtFinalPrice(effectiveCost(v,o.cost))}`;
 function getTrip(){const d=safe($('km').value),h=safe($('hours').value),m=safe($('minutes').value),dh=safe($('driveHours').value),dm=safe($('driveMinutes').value);return {d,t:Math.round(h*60+m),drive:Math.round(dh*60+dm)};}
 function calcAll(){
  const {d,t,drive}=getTrip();
@@ -2930,16 +2931,16 @@ function calcAll(){
  const showChoice=r=>{
   const hasBonus=bonusAmount(r.v,r.best.cost)>0;
   count.textContent=`${r.v.provider} — ${priceText(r.v,r.best)} руб`;
-  if(hasBonus){const suffix=document.createElement('span');suffix.className='bonus-suffix';suffix.textContent=' (с бонусом 10%)';count.append(suffix);gross.textContent=`Без бонуса: ${r.best.status==='подтверждено'?'':'≈ '}${fmt(r.best.cost)} руб`;gross.hidden=false;}
+  if(hasBonus){const suffix=document.createElement('span');suffix.className='bonus-suffix';suffix.textContent=' (с бонусом 10%)';count.append(suffix);gross.textContent=`Без бонуса: ${r.best.status==='подтверждено'?'':'≈ '}${fmtFinalPrice(r.best.cost)} руб`;gross.hidden=false;}
   winningModel.textContent=r.v.model;winningModel.hidden=false;
   tariff.textContent=tariffText(r);tariff.hidden=false;
  };
  if(!valid){count.textContent='Проверь параметры поездки';}
  else if(a&&h){
   if(winner){showChoice(winner);count.classList.add('winner');}
-  else{count.textContent=`Anytime и Hello — ${a.best.status!=='подтверждено'||h.best.status!=='подтверждено'?'≈ ':''}${fmt(effective(a))} руб`;winningModel.textContent=`Anytime: ${a.v.model} · Hello: ${h.v.model}`;winningModel.hidden=false;tariff.textContent=`Anytime: ${tariffText(a).slice(7)} · Hello: ${tariffText(h).slice(7)}`;tariff.hidden=false;if(bonusAmount(a.v,a.best.cost)>0){gross.textContent=`Anytime без бонусов: ${fmt(a.best.cost)} руб`;gross.hidden=false;}}
+  else{count.textContent=`Anytime и Hello — ${a.best.status!=='подтверждено'||h.best.status!=='подтверждено'?'≈ ':''}${fmtFinalPrice(effective(a))} руб`;winningModel.textContent=`Anytime: ${a.v.model} · Hello: ${h.v.model}`;winningModel.hidden=false;tariff.textContent=`Anytime: ${tariffText(a).slice(7)} · Hello: ${tariffText(h).slice(7)}`;tariff.hidden=false;if(bonusAmount(a.v,a.best.cost)>0){gross.textContent=`Anytime без бонусов: ${fmtFinalPrice(a.best.cost)} руб`;gross.hidden=false;}}
   const payWinner=a.best.cost<h.best.cost?a:h.best.cost<a.best.cost?h:null;
-  if(payWinner!==winner){paymentNote.textContent=payWinner?`Меньше к оплате: ${payWinner.v.provider} — ${payWinner.best.status==='подтверждено'?'':'≈ '}${fmt(payWinner.best.cost)} руб.`:'Фактическая сумма к оплате одинакова.';paymentNote.hidden=false;}
+  if(payWinner!==winner){paymentNote.textContent=payWinner?`Меньше к оплате: ${payWinner.v.provider} — ${payWinner.best.status==='подтверждено'?'':'≈ '}${fmtFinalPrice(payWinner.best.cost)} руб.`:'Фактическая сумма к оплате одинакова.';paymentNote.hidden=false;}
  }else if(overall){showChoice(overall);paymentNote.textContent='Для второго сервиса нет расчёта при этих условиях.';paymentNote.hidden=false;}
  else{count.textContent='Нет подходящих расчётов';}
  $('warning').style.display=warn.length?'':'none';$('warning').textContent=warn.join(' ');
@@ -2973,7 +2974,7 @@ function calcAll(){
     header.append(note);
    }
    const bonus=bonusAmount(pr,best.cost);
-   if(bonus>0){const secondary=document.createElement('div');secondary.className='secondaryprice';secondary.textContent=`${fmt(best.cost)} (полная), ${fmt(bonus)} (бонус)`;header.append(secondary);}
+   if(bonus>0){const secondary=document.createElement('div');secondary.className='secondaryprice';secondary.textContent=`${fmtFinalPrice(best.cost)} (полная), ${fmtFinalPrice(bonus)} (бонус)`;header.append(secondary);}
    const foot=document.createElement('div');foot.className='carbottom';
    const btn=document.createElement('button');btn.className='detailbtn';btn.textContent='Другие тарифы ⌄';btn.type='button';btn.setAttribute('aria-expanded','false');
    const plans=document.createElement('div');plans.className='plans';plans.id=`plans-${pr.id}`;btn.setAttribute('aria-controls',plans.id);if(expandedPlans.has(plans.id)){container.classList.add('open');btn.textContent='Скрыть тарифы ⌃';btn.setAttribute('aria-expanded','true');}
@@ -2981,7 +2982,7 @@ function calcAll(){
    if(r.options.length===1){const msg=document.createElement('div');msg.className='note';msg.textContent='Других тарифов для этих условий нет.';plans.append(msg);}
    r.options.slice(1).forEach(o=>{const line=document.createElement('div');line.className='planline';const li=document.createElement('div');const heading=document.createElement('div');heading.textContent=compactLabel(o.label);
     const terms=document.createElement('div');terms.className='note';let parts=[`База ${fmt(o.base)} BYN`];if(o.kmCharge)parts.push(`км ${fmt(o.kmCharge)} BYN`);if(o.over)parts.push(`перерасход ${fmt(o.over)} BYN`);terms.textContent=o.mixed?o.mixDetail:parts.join(' · ');li.append(heading,terms);
-    const bonus=bonusAmount(pr,o.cost);if(bonus>0){const hint=document.createElement('div');hint.className='bonushint';hint.textContent=`цена: ${fmt(o.cost)} · бонус: ${fmt(bonus)}`;li.append(hint);}
+    const bonus=bonusAmount(pr,o.cost);if(bonus>0){const hint=document.createElement('div');hint.className='bonushint';hint.textContent=`цена: ${fmtFinalPrice(o.cost)} · бонус: ${fmtFinalPrice(bonus)}`;li.append(hint);}
     const price=document.createElement('strong');price.textContent=`${priceText(pr,o)} BYN`;line.append(li,price);plans.append(line);});
    const source=document.createElement('div');source.className='note';source.style.marginTop='6px';
    const helloUrl=pr.url?safeExternalUrl(pr.url,['hello.by','www.hello.by']):null;if(helloUrl){const link=document.createElement('a');link.href=helloUrl;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Официальный тариф Hello';source.append(link);}else source.textContent=pr.source||'Источник: видео и скриншоты приложения Anytime';
