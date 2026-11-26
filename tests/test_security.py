@@ -24,3 +24,12 @@ def test_frontend_has_no_string_to_html_or_dynamic_code_sinks():
 def test_frontend_has_no_inline_event_handlers():
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     assert re.search(r"\son[a-z]+\s*=", html, re.I) is None
+
+
+def test_pages_workflow_supports_safe_user_site_rename():
+    workflow = (ROOT / ".github" / "workflows" / "update-tariffs.yml").read_text(encoding="utf-8")
+    assert "deploy_only:" in workflow
+    assert "inputs.deploy_only != true" in workflow
+    assert "inputs.deploy_only == true" in workflow
+    assert "mkdir -p site/anytime-hello-calculator" in workflow
+    assert 'meta http-equiv="refresh" content="0; url=/"' in workflow
