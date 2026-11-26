@@ -108,7 +108,7 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
 </section>
 <div class="formgrid trip-inputs">
 <fieldset class="field timefield"><legend>Время за рулём</legend><div class="timepair"><div><input id="driveTimeHours" aria-label="Время за рулём — часы" type="number" step="1" min="0" max="720" value="1"><small>часы</small></div><div><input id="driveTimeMinutes" aria-label="Время за рулём — минуты" type="number" step="1" min="0" max="59" value="30"><small>минуты</small></div></div><small id="driveTimeStatus" class="route-field-status">Суммарное время движения по всем участкам</small></fieldset>
-<div class="field trip-distance-field"><label for="km">Километраж поездки</label><input id="km" type="number" step="0.1" min="0" max="20000" value="30"><small id="kmStatus" class="route-field-status">Общий пробег</small></div>
+<div class="field trip-distance-field"><label for="km">Км</label><input id="km" type="number" step="0.1" min="0" max="20000" value="30"><small id="kmStatus" class="route-field-status">Общий пробег</small></div>
 <fieldset class="field timefield"><legend>Время на места</legend><div class="timepair"><div><input id="placesHours" aria-label="Время на места — часы" type="number" step="1" min="0" max="720" value="0"><small>часы</small></div><div><input id="placesMinutes" aria-label="Время на места — минуты" type="number" step="1" min="0" max="59" value="30"><small>минуты</small></div></div><small>Суммарное время на всех остановках</small></fieldset>
 <div class="field timefield trip-total-time-field"><label for="tripHours">Время всей поездки</label><div class="timepair"><div><input id="tripHours" aria-label="Время всей поездки — часы" type="number" step="1" min="0" max="720" value="2"><small>часы</small></div><div><input id="tripMinutes" aria-label="Время всей поездки — минуты" type="number" step="1" min="0" max="59" value="0"><small>минуты</small></div></div><small id="tripTimeStatus" class="route-field-status imported">Auto: время за рулём + места</small></div>
 </div>
@@ -119,14 +119,14 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
    <h4>Первый участок</h4>
    <div class="hello-segment-fields">
     <div class="field hello-time-field"><label>Время</label><div class="timepair"><div><input id="firstDriveHours" aria-label="Время первого участка — часы" type="number" step="1" min="0" max="720" value="0"><small>часы</small></div><div><input id="firstDriveMinutes" aria-label="Время первого участка — минуты" type="number" step="1" min="0" max="59" value="45"><small>минуты</small></div></div><small id="firstDriveStatus" class="route-field-status">Время первого участка</small></div>
-    <div class="field"><label for="firstKm">Километраж</label><input id="firstKm" type="number" inputmode="decimal" step="0.1" min="0" max="20000" value="15"><small id="firstKmStatus" class="route-field-status">Километраж первого участка</small></div>
+    <div class="field"><label for="firstKm">Км</label><input id="firstKm" type="number" inputmode="decimal" step="0.1" min="0" max="20000" value="15"><small id="firstKmStatus" class="route-field-status">Км первого участка</small></div>
    </div>
   </div>
   <div class="hello-segment-card">
    <h4>Последний участок</h4>
    <div class="hello-segment-fields">
     <div class="field hello-time-field"><label>Время</label><div class="timepair"><div><input id="lastDriveHours" aria-label="Время последнего участка — часы" type="number" step="1" min="0" max="720" value="0"><small>часы</small></div><div><input id="lastDriveMinutes" aria-label="Время последнего участка — минуты" type="number" step="1" min="0" max="59" value="45"><small>минуты</small></div></div><small id="lastDriveStatus" class="route-field-status">Время последнего участка</small></div>
-    <div class="field"><label for="lastKm">Километраж</label><input id="lastKm" type="number" inputmode="decimal" step="0.1" min="0" max="20000" value="15"><small id="lastKmStatus" class="route-field-status">Километраж последнего участка</small></div>
+    <div class="field"><label for="lastKm">Км</label><input id="lastKm" type="number" inputmode="decimal" step="0.1" min="0" max="20000" value="15"><small id="lastKmStatus" class="route-field-status">Км последнего участка</small></div>
    </div>
   </div>
  </div>

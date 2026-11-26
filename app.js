@@ -2971,9 +2971,9 @@ function updateRouteFieldStatuses(){
    ['km','kmStatus','Общий пробег'],
    ['totalDrive','driveTimeStatus','Суммарное время движения по маршруту'],
    ['firstDrive','firstDriveStatus','Время первого участка'],
-   ['firstKm','firstKmStatus','Километраж первого участка'],
+   ['firstKm','firstKmStatus','Км первого участка'],
    ['lastDrive','lastDriveStatus','Время последнего участка'],
-   ['lastKm','lastKmStatus','Километраж последнего участка']
+   ['lastKm','lastKmStatus','Км последнего участка']
   ];
   for(const [key,id,defaultText] of fields){
    const node=$(id),manual=routeFieldManual[key];
@@ -3138,7 +3138,7 @@ function calcAll(){
   if(!outerTimeValid)packageErrors.push('Суммарное время первого и последнего участков не может превышать время за рулём.');
   if(!outerKmValid)packageErrors.push('Суммарный километраж первого и последнего участков не может превышать километраж поездки.');
   if(packageTime<0)packageErrors.push('Время для абонемента не может быть отрицательным.');
-  if(packageKm<0)packageErrors.push('Километраж для абонемента не может быть отрицательным.');
+  if(packageKm<0)packageErrors.push('Км для абонемента не может быть отрицательным.');
   const packageError=$('helloPackageError');
   packageError.hidden=packageErrors.length===0;
   packageError.textContent=packageErrors.join(' ');
