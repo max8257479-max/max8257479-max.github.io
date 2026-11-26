@@ -131,7 +131,7 @@ jobs:
         run: python scripts/check_osrm_sample_route.py
 
   route_compare:
-    name: Compare public Valhalla and OSRM routes
+    name: Compare free public route engines
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 4
