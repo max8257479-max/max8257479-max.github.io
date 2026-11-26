@@ -2801,8 +2801,9 @@ const timeText=m=>[Math.floor(m/60)?`${Math.floor(m/60)} ч`:'',m%60?`${m%60} м
 
 const ROUTE_STATUS_DEFAULT='';
 let routeRequestId=0,routeInFlightUrl='',lastAppliedRouteLink='',lastRouteRequestAt=0;
-let routeInputTimer=null,routeImported=false,applyingRouteValues=false,routePointCount=0,routeLegCount=0;
+let routeInputTimer=null,routeImported=false,applyingRouteValues=false,routePointCount=0,routeLegCount=0,routePendingEditVersion=null;
 const routeFieldManual={km:false,rentalTime:false,outerDrive:false,packageKm:false};
+const routeFieldEditVersion={km:0,rentalTime:0,outerDrive:0,packageKm:0};
 function parseYandexRouteLink(raw){
  let url;
  try{url=new URL(raw.trim());}catch(error){throw new Error('Вставь корректную ссылку на маршрут Яндекс Карт.');}
@@ -2885,13 +2886,15 @@ function renderRouteLegDetails(legs){
 function markRouteFieldManual(key){
  if(applyingRouteValues)return;
  routeFieldManual[key]=true;
+ routeFieldEditVersion[key]++;
  updateRouteFieldStatuses();
 }
-async function calculateRouteFromYandexLink(force=false){
+async function calculateRouteFromYandexLink(force=false,editVersionAtLink=null){
  const raw=$('routeUrl').value.trim(),status=$('routeStatus'),button=$('routeCalculate');
  if(!raw){status.textContent=ROUTE_STATUS_DEFAULT;status.className='route-status';return;}
  if((!force&&raw===lastAppliedRouteLink)||raw===routeInFlightUrl)return;
  const requestId=++routeRequestId;
+ const editVersionSnapshot=editVersionAtLink||{...routeFieldEditVersion};
  routeInFlightUrl=raw;
  button.disabled=true;button.textContent='Загружаем…';
  status.className='route-status';status.textContent='Загружаем маршрут…';
@@ -2912,16 +2915,21 @@ async function calculateRouteFromYandexLink(force=false){
   if(!Array.isArray(legs)||legs.length!==points.length-1)throw new Error('Сервис не вернул данные по всем '+(points.length-1)+' участкам маршрута.');
   const totals=summarizeRouteLegs(legs);
   if(requestId!==routeRequestId)return;
+  const changedDuringLoad=Object.keys(routeFieldEditVersion).filter(key=>routeFieldEditVersion[key]!==editVersionSnapshot[key]);
   applyingRouteValues=true;
   try{
-   $('km').value=totals.totalKm.toFixed(1);
-   $('hours').value=String(Math.floor(totals.totalMinutes/60));
-   $('minutes').value=String(totals.totalMinutes%60);
-   $('driveHours').value=String(Math.floor(totals.outerDriveMinutes/60));
-   $('driveMinutes').value=String(totals.outerDriveMinutes%60);
-   $('helloPackageKm').value=totals.packageKm.toFixed(1);
+   if(!changedDuringLoad.includes('km'))$('km').value=totals.totalKm.toFixed(1);
+   if(!changedDuringLoad.includes('rentalTime')){
+    $('hours').value=String(Math.floor(totals.totalMinutes/60));
+    $('minutes').value=String(totals.totalMinutes%60);
+   }
+   if(!changedDuringLoad.includes('outerDrive')){
+    $('driveHours').value=String(Math.floor(totals.outerDriveMinutes/60));
+    $('driveMinutes').value=String(totals.outerDriveMinutes%60);
+   }
+   if(!changedDuringLoad.includes('packageKm'))$('helloPackageKm').value=totals.packageKm.toFixed(1);
   }finally{applyingRouteValues=false;}
-  Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=false);
+  Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=changedDuringLoad.includes(key));
   routeImported=true;
   routePointCount=points.length;
   routeLegCount=legs.length;
@@ -3078,31 +3086,46 @@ for(const [id,key] of Object.entries(routeInputGroups))$(id).addEventListener('i
 $('routeCalculate').addEventListener('click',()=>{
  if(routeInputTimer)clearTimeout(routeInputTimer);
  routeInputTimer=null;
- calculateRouteFromYandexLink(true);
+ const snapshot=routePendingEditVersion||{...routeFieldEditVersion};
+ routePendingEditVersion=null;
+ calculateRouteFromYandexLink(true,snapshot);
 });
 $('routeUrl').addEventListener('change',()=>{
  if(routeInputTimer)clearTimeout(routeInputTimer);
  routeInputTimer=null;
- calculateRouteFromYandexLink(false);
+ const snapshot=routePendingEditVersion||{...routeFieldEditVersion};
+ routePendingEditVersion=null;
+ calculateRouteFromYandexLink(false,snapshot);
 });
 $('routeUrl').addEventListener('input',()=>{
  const value=$('routeUrl').value.trim(),status=$('routeStatus'),button=$('routeCalculate');
  if(routeInputTimer)clearTimeout(routeInputTimer);
  routeInputTimer=null;
  if(!value){
-  routeRequestId++;routeInFlightUrl='';routeImported=false;routePointCount=0;routeLegCount=0;lastAppliedRouteLink='';
+  routeRequestId++;routeInFlightUrl='';routeImported=false;routePointCount=0;routeLegCount=0;lastAppliedRouteLink='';routePendingEditVersion=null;
   button.disabled=false;button.textContent='Обновить по ссылке';
   status.textContent=ROUTE_STATUS_DEFAULT;status.className='route-status';
   $('routeDetails').hidden=true;$('routeLegList').replaceChildren();
   updateRouteFieldStatuses();
   return;
  }
- if(value===lastAppliedRouteLink){updateRouteFieldStatuses();return;}
+ if(value===lastAppliedRouteLink){
+  if(routeInFlightUrl){routeRequestId++;routeInFlightUrl='';button.disabled=false;button.textContent='Обновить по ссылке';}
+  routePendingEditVersion=null;
+  updateRouteFieldStatuses();
+  return;
+ }
  routeRequestId++;routeInFlightUrl='';
+ if(!routePendingEditVersion)routePendingEditVersion={...routeFieldEditVersion};
  button.disabled=false;button.textContent='Обновить по ссылке';
  status.textContent='Ссылка изменена. Подготавливаю новый маршрут…';status.className='route-status';
  $('routeDetails').hidden=true;$('routeLegList').replaceChildren();
- routeInputTimer=setTimeout(()=>{routeInputTimer=null;calculateRouteFromYandexLink(false);},650);
+ routeInputTimer=setTimeout(()=>{
+  routeInputTimer=null;
+  const snapshot=routePendingEditVersion||{...routeFieldEditVersion};
+  routePendingEditVersion=null;
+  calculateRouteFromYandexLink(false,snapshot);
+ },650);
 });
 for(const chip of document.querySelectorAll('[data-provider]'))chip.addEventListener('click',()=>{provider=chip.dataset.provider;document.querySelectorAll('[data-provider]').forEach(c=>c.classList.toggle('active',c===chip));calcAll();});
 $('reset').addEventListener('click',()=>{
@@ -3110,7 +3133,7 @@ $('reset').addEventListener('click',()=>{
  for(const [id,v] of [['km','30'],['hours','2'],['minutes','0'],['driveHours','1'],['driveMinutes','30'],['helloPackageKm','0']])$(id).value=v;
  $('routeUrl').value='';
  if(routeInputTimer)clearTimeout(routeInputTimer);
- routeInputTimer=null;routeRequestId++;routeInFlightUrl='';lastAppliedRouteLink='';routeImported=false;routePointCount=0;routeLegCount=0;applyingRouteValues=false;
+ routeInputTimer=null;routeRequestId++;routeInFlightUrl='';lastAppliedRouteLink='';routeImported=false;routePointCount=0;routeLegCount=0;routePendingEditVersion=null;applyingRouteValues=false;
  Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=false);
  $('routeStatus').textContent=ROUTE_STATUS_DEFAULT;$('routeStatus').className='route-status';
  $('routeDetails').hidden=true;$('routeLegList').replaceChildren();
