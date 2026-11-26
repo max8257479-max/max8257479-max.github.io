@@ -288,6 +288,7 @@ def test_route_import_uses_three_free_public_engines_without_api_keys():
     assert "profile:'car-eco'" in app
     assert "Math.max(5000,distance*0.10)" in app
     assert "Сравниваю три бесплатных маршрутизатора" in app
-    assert "Медиана результатов OSRM, Valhalla, BRouter" in html
+    assert "Медиана результатов" in html
+    assert all(f">{name}</a>" in html for name in ("OSRM", "Valhalla", "BRouter"))
     assert "Сверка трёх бесплатных маршрутизаторов" not in html
-    assert "медиана результатов" in html
+    assert "медиана результатов" not in html
