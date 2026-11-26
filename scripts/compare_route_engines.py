@@ -56,7 +56,9 @@ def valhalla_route():
         },
     )
     try:
-        preflight_status, preflight_headers, _ = fetch_json(preflight)
+        with urlopen(preflight, timeout=20) as response:
+            response.read()
+            preflight_status, preflight_headers = response.status, dict(response.headers.items())
     except HTTPError as exc:
         preflight_status, preflight_headers = exc.code, dict(exc.headers.items())
     except (URLError, TimeoutError, OSError) as exc:
