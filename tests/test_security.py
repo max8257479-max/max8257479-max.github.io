@@ -145,17 +145,23 @@ def test_route_import_updates_first_and_last_legs_and_keeps_manual_edits_indepen
     assert "Первый участок" in html and 'id="firstKm"' in html
     assert "Последний участок" in html and 'id="lastKm"' in html
     assert 'id="outerDriveTotal"' in html and 'id="outerKmTotal"' in html
-    assert "Время для абонемента" in html and 'id="packageTime"' in html
-    assert "Км для абонемента" not in html and 'id="packageKm"' not in html
-    assert "Итоговое время 1-го и последнего участков" in html
-    assert "Итог км 1-го и последнего участков" in html
+    assert 'label for="packageTime">Время</label>' in html and 'id="packageTime"' in html
+    assert 'label for="packageKm">Км</label>' in html and 'id="packageKm"' in html
+    assert "Абонемент (середина пути)" in html
+    assert "Суммарно по 1-му и последнему участкам" in html
+    assert '<label>Время</label><output id="outerDriveTotal"' in html
+    assert '<label>Км</label><output id="outerKmTotal"' in html
     assert "Суммарное время 1-го и последнего участков" not in html
     assert "Суммарный километраж 1-го и последнего участков" not in html
     assert "Время всей поездки − суммарное время 1-го и последнего участков" not in html
-    assert "$('packageKm')" not in app and "const packageKmOutput" not in app
+    assert "const packageKmOutput=$('packageKm')" in app
+    assert "packageKmOutput.textContent=packageKm>=0?formatRouteKm(packageKm)+' км':'—'" in app
     assert "packageKm=Math.round((d-outerKm+Number.EPSILON)*10)/10" in app
     assert "Первый и последний участки — минутный тариф, середина — абонемент ч+км" in html
     assert 'class="field timefield trip-total-time-field"' in html
+    assert 'label for="tripHours">Время всей поездки</label>' in html
+    assert ".trip-inputs{grid-template-columns:repeat(4,minmax(0,1fr))" in html
+    assert ".trip-distance-field,.trip-total-time-field{padding:0" in html
     assert "Автоматически: время за рулём + время на места" not in html
     assert "outerDriveHours" not in app and "outerDriveHours" not in html
     assert 'id="outerKm"' not in html
@@ -282,5 +288,7 @@ def test_route_import_uses_three_free_public_engines_without_api_keys():
     assert "profile:'car-eco'" in app
     assert "Math.max(5000,distance*0.10)" in app
     assert "Сравниваю три бесплатных маршрутизатора" in app
-    assert "Сверка трёх бесплатных маршрутизаторов" in html
-    assert "медиана результатов" in html
+    assert "Медиана результатов" in html
+    assert all(f">{name}</a>" in html for name in ("OSRM", "Valhalla", "BRouter"))
+    assert "Сверка трёх бесплатных маршрутизаторов" not in html
+    assert "медиана результатов" not in html
