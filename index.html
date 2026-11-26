@@ -97,6 +97,7 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
 .hello-time-field label{display:block;font-size:13px;font-weight:700;margin:0 0 7px}
 .hello-subgroup{margin-top:14px;padding-top:13px;border-top:1px solid #dce8e0}
 .hello-derived-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.hello-package-grid{grid-template-columns:minmax(0,1fr)}
 .hello-derived-grid .field{min-width:0}
 .hello-derived-grid output{display:flex;align-items:center;min-height:46px;padding:10px 12px;border:1px solid #d8e0e7;border-radius:9px;background:#fff;color:var(--ink);font-size:15px;font-variant-numeric:tabular-nums}
 .hello-derived-grid output.invalid{background:#fff3da;color:#815300;border-color:#e8d39f}
@@ -137,15 +138,14 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
  <section class="hello-subgroup">
   <h4>Суммарно по первому и последнему участкам</h4>
   <div class="hello-derived-grid">
-   <div class="field derived-field"><label>Суммарное время 1-го и последнего участков</label><output id="outerDriveTotal" aria-live="polite" for="firstDriveHours firstDriveMinutes lastDriveHours lastDriveMinutes">1 ч 30 мин</output></div>
-   <div class="field derived-field"><label>Суммарный километраж 1-го и последнего участков</label><output id="outerKmTotal" aria-live="polite" for="firstKm lastKm">30 км</output></div>
+   <div class="field derived-field"><label>Итоговое время 1-го и последнего участков</label><output id="outerDriveTotal" aria-live="polite" for="firstDriveHours firstDriveMinutes lastDriveHours lastDriveMinutes">1 ч 30 мин</output></div>
+   <div class="field derived-field"><label>Итог км 1-го и последнего участков</label><output id="outerKmTotal" aria-live="polite" for="firstKm lastKm">30 км</output></div>
   </div>
  </section>
  <section class="hello-subgroup">
   <h4>Абонемент</h4>
-  <div class="hello-derived-grid">
-   <div class="field derived-field"><label for="packageTime">Время для абонемента</label><output id="packageTime" aria-live="polite" for="tripHours tripMinutes outerDriveTotal">30 мин</output><small>Время всей поездки − суммарное время 1-го и последнего участков</small></div>
-   <div class="field derived-field"><label for="packageKm">Км для абонемента</label><output id="packageKm" aria-live="polite" for="km outerKmTotal">0 км</output><small>Километраж поездки − суммарный километраж 1-го и последнего участков</small></div>
+  <div class="hello-derived-grid hello-package-grid">
+   <div class="field derived-field"><label for="packageTime">Время для абонемента</label><output id="packageTime" aria-live="polite" for="tripHours tripMinutes outerDriveTotal">30 мин</output></div>
   </div>
  </section>
  <div id="helloPackageError" class="hello-km-error" aria-live="polite" hidden></div>
