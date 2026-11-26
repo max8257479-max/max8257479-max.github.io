@@ -130,13 +130,13 @@ def osrm_route():
 
 
 
-def brouter_route():
+def brouter_route(profile):
     result = []
     for index, (start, end) in enumerate(zip(POINTS, POINTS[1:])):
         lonlats = f"{start[1]},{start[0]}|{end[1]},{end[0]}"
         query = urlencode({
             "lonlats": lonlats,
-            "profile": "car-fast",
+            "profile": profile,
             "alternativeidx": "0",
             "format": "geojson",
         })
@@ -165,13 +165,13 @@ def brouter_route():
         })
         # Public community service: keep requests deliberately slow.
         time.sleep(1.2)
-    return {"http_status": 200, "profile": "car-fast", "legs": result}
+    return {"http_status": 200, "profile": profile, "legs": result}
 
 
 def main():
     result = {}
     errors = {}
-    for name, fn in (("valhalla", valhalla_route), ("osrm", osrm_route), ("brouter", brouter_route)):
+    for name, fn in (("valhalla", valhalla_route), ("osrm", osrm_route), ("brouter_fast", lambda: brouter_route("car-fast")), ("brouter_eco", lambda: brouter_route("car-eco"))):
         try:
             result[name] = fn()
         except (HTTPError, URLError, TimeoutError, OSError, ValueError, RuntimeError) as exc:
@@ -179,7 +179,7 @@ def main():
         time.sleep(1.2)
 
     if len(result) >= 2:
-        engine_names = [name for name in ("valhalla", "osrm", "brouter") if name in result]
+        engine_names = [name for name in ("valhalla", "osrm", "brouter_fast", "brouter_eco") if name in result]
         result["comparison"] = []
         for index in range(len(POINTS) - 1):
             row = {"segment": f"{index}→{index + 1}"}
