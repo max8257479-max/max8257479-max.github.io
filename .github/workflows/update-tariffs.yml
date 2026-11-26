@@ -116,6 +116,20 @@ jobs:
           /tmp/pip-audit-env/bin/python -m pip install --disable-pip-version-check --only-binary=:all: -r requirements-audit.txt
           /tmp/pip-audit-env/bin/pip-audit --strict -r requirements.txt
 
+  route_smoke:
+    name: OSRM six-point sample route smoke test
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Check the supplied six-point route on public OSRM
+        run: python scripts/check_osrm_sample_route.py
+
   update:
     name: Update tariff data
     if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && inputs.tariff_pr_number == '' && inputs.deploy_only != true

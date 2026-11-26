@@ -2801,6 +2801,9 @@ const timeText=m=>[Math.floor(m/60)?`${Math.floor(m/60)} ч`:'',m%60?`${m%60} м
 
 const ROUTE_STATUS_DEFAULT='';
 let routeRequestId=0,routeInFlightUrl='',lastAppliedRouteLink='',lastRouteRequestAt=0;
+let routeInputTimer=null,routeImported=false,applyingRouteValues=false,routePointCount=0,routeLegCount=0,routePendingEditVersion=null;
+const routeFieldManual={km:false,rentalTime:false,outerDrive:false,packageKm:false};
+const routeFieldEditVersion={km:0,rentalTime:0,outerDrive:0,packageKm:0};
 function parseYandexRouteLink(raw){
  let url;
  try{url=new URL(raw.trim());}catch(error){throw new Error('Вставь корректную ссылку на маршрут Яндекс Карт.');}
@@ -2808,36 +2811,95 @@ function parseYandexRouteLink(raw){
  const domains=['yandex.ru','yandex.com','yandex.by','yandex.kz','yandex.uz','yandex.com.tr'];
  if(!domains.some(domain=>host===domain||host.endsWith('.'+domain)))throw new Error('Нужна ссылка именно на Яндекс Карты.');
  const routeText=url.searchParams.get('rtext');
- if(!routeText)throw new Error('В ссылке не найдены точки маршрута. Скопируй ссылку через «Поделиться» в Яндекс Картах с параметром rtext.');
- const rawPoints=routeText.split('~').map(value=>value.trim()).filter(Boolean);
+ if(!routeText)throw new Error('В ссылке не найдены точки маршрута. Нужна ссылка с координатами в параметре rtext.');
+ const rawPoints=routeText.split('~').map(value=>value.trim());
  if(rawPoints.length<2)throw new Error('В маршруте должно быть не менее двух точек.');
  if(rawPoints.length>25)throw new Error('Для автоматического расчёта поддерживается до 25 точек маршрута.');
+ if(rawPoints.some(value=>!value))throw new Error('В ссылке есть пустая точка маршрута. Проверь параметр rtext.');
  const points=rawPoints.map(value=>{
   const match=value.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
   if(!match)throw new Error('В ссылке должны быть координаты всех точек. Используй ссылку Яндекс Карт с координатами в параметре rtext.');
   const lat=Number(match[1]),lon=Number(match[2]);
   if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat < -90||lat > 90||lon < -180||lon > 180)throw new Error('В ссылке обнаружены некорректные координаты.');
-  return {lat:lat,lon:lon};
+  return {lat,lon};
  });
  return points;
 }
-async function calculateRouteFromYandexLink(){
+function summarizeRouteLegs(legs){
+ if(!Array.isArray(legs)||!legs.length)throw new Error('Сервис не вернул участки маршрута.');
+ const values=legs.map((leg,index)=>{
+  const distance=Number(leg&&leg.distance),duration=Number(leg&&leg.duration);
+  if(!Number.isFinite(distance)||distance<0||!Number.isFinite(duration)||duration<0)throw new Error('Сервис вернул некорректные данные участка '+(index+1)+'.');
+  return {distance,duration};
+ });
+ const totalDistanceMeters=values.reduce((sum,leg)=>sum+leg.distance,0);
+ const totalDurationSeconds=values.reduce((sum,leg)=>sum+leg.duration,0);
+ const middleLegs=values.length>2?values.slice(1,-1):[];
+ const packageDistanceMeters=middleLegs.reduce((sum,leg)=>sum+leg.distance,0);
+ const outerDurationSeconds=values.length===1?values[0].duration:values[0].duration+values[values.length-1].duration;
+ const totalKm=Math.round((totalDistanceMeters+Number.EPSILON)/100)/10;
+ const packageKm=Math.round((packageDistanceMeters+Number.EPSILON)/100)/10;
+ return {
+  totalDistanceMeters,packageDistanceMeters,totalDurationSeconds,outerDurationSeconds,
+  totalKm,packageKm,
+  totalMinutes:Math.round(totalDurationSeconds/60),
+  outerDriveMinutes:Math.round(outerDurationSeconds/60)
+ };
+}
+function formatRouteKm(value){
+ return Number(value).toLocaleString('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1});
+}
+function updateRouteFieldStatuses(){
+ const fields=[
+  ['km','kmStatus','Общий пробег'],
+  ['rentalTime','rentalTimeStatus','Время движения по маршруту'],
+  ['outerDrive','outerDriveStatus','Первый + последний участки'],
+  ['packageKm','packageKmStatus','Средние участки маршрута']
+ ];
+ for(const [key,id,defaultText] of fields){
+  const node=$(id),manual=routeFieldManual[key];
+  node.textContent=manual?'Изменено вручную':routeImported?'По маршруту':defaultText;
+  node.classList.toggle('manual',manual);
+  node.classList.toggle('imported',routeImported&&!manual);
+ }
+ if(routeImported&&!routeInFlightUrl&&$('routeUrl').value.trim()===lastAppliedRouteLink){
+  const changed=Object.entries(routeFieldManual).filter(([,value])=>value).map(([key])=>({
+   km:'километраж',rentalTime:'время аренды',outerDrive:'время крайних участков',packageKm:'километраж абонемента'
+  })[key]);
+  $('routeStatus').textContent='Маршрут загружен · '+routePointCount+' точек / '+routeLegCount+' участков'+(changed.length?' · Изменено вручную: '+changed.join(', '):'');
+  $('routeStatus').className='route-status success';
+ }
+}
+function renderRouteLegDetails(legs){
+ const list=$('routeLegList');
+ list.replaceChildren();
+ legs.forEach((leg,index)=>{
+  const row=document.createElement('div');row.className='route-leg-row';
+  const label=document.createElement('span');label.textContent='Участок '+index+' → '+(index+1);
+  const value=document.createElement('strong');
+  value.textContent=formatRouteKm(Number(leg.distance)/1000)+' км · '+timeText(Math.round(Number(leg.duration)/60));
+  row.append(label,value);list.append(row);
+ });
+ $('routeDetailsSummary').textContent='Проверить участки маршрута ('+legs.length+')';
+ $('routeDetails').hidden=false;
+}
+function markRouteFieldManual(key){
+ if(applyingRouteValues)return;
+ routeFieldManual[key]=true;
+ routeFieldEditVersion[key]++;
+ updateRouteFieldStatuses();
+}
+async function calculateRouteFromYandexLink(force=false,editVersionAtLink=null){
  const raw=$('routeUrl').value.trim(),status=$('routeStatus'),button=$('routeCalculate');
  if(!raw){status.textContent=ROUTE_STATUS_DEFAULT;status.className='route-status';return;}
- if(raw===lastAppliedRouteLink||raw===routeInFlightUrl)return;
+ if((!force&&raw===lastAppliedRouteLink)||raw===routeInFlightUrl)return;
  const requestId=++routeRequestId;
+ const editVersionSnapshot=editVersionAtLink||{...routeFieldEditVersion};
  routeInFlightUrl=raw;
- button.disabled=true;button.textContent='Расчёт…';
- status.className='route-status';status.textContent='Рассчитываю участки маршрута…';
+ button.disabled=true;button.textContent='Загружаем…';
+ status.className='route-status';status.textContent='Загружаем маршрут…';
  try{
   const points=parseYandexRouteLink(raw);
-  if(points.length>2){
-   const start=points[0],end=points[points.length-1],rad=Math.PI/180;
-   const dLat=(end.lat-start.lat)*rad,dLon=(end.lon-start.lon)*rad,lat1=start.lat*rad,lat2=end.lat*rad;
-   const haversine=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
-   const gapMeters=6371000*2*Math.asin(Math.min(1,Math.sqrt(haversine)));
-   if(gapMeters>500)throw new Error('Для расчёта минутного тарифа на обратном участке последняя точка маршрута должна совпадать с исходной точкой старта. Добавь старт в конец маршрута.');
-  }
   const waitMs=Math.max(0,1000-(Date.now()-lastRouteRequestAt));
   if(waitMs)await new Promise(resolve=>setTimeout(resolve,waitMs));
   if(requestId!==routeRequestId)return;
@@ -2847,34 +2909,42 @@ async function calculateRouteFromYandexLink(){
   const response=await fetch(endpoint,{cache:'no-store'});
   if(!response.ok)throw new Error('Сервис расчёта маршрута недоступен (HTTP '+response.status+').');
   const data=await response.json();
-  if(data.code!=='Ok'||!data.routes||!data.routes.length)throw new Error('Не удалось построить маршрут по координатам из ссылки.');
-  const route=data.routes[0],legs=route.legs;
-  if(!legs||legs.length!==points.length-1||!legs.length)throw new Error('Сервис не вернул расстояния по всем участкам маршрута.');
-  const middleLegs=legs.length>2?legs.slice(1,-1):[];
-  const totalDistance=legs.reduce((sum,leg)=>sum+Number(leg.distance||0),0);
-  const packageDistance=middleLegs.reduce((sum,leg)=>sum+Number(leg.distance||0),0);
-  const totalDurationSeconds=legs.reduce((sum,leg)=>sum+Number(leg.duration||0),0);
-  const middleDurationSeconds=middleLegs.reduce((sum,leg)=>sum+Number(leg.duration||0),0);
-  const packageKm=Math.round(packageDistance/10)/100;
-  const outerDriveMinutes=Math.max(0,Math.round((totalDurationSeconds-middleDurationSeconds)/60));
-  if(!Number.isFinite(packageKm)||!Number.isFinite(outerDriveMinutes))throw new Error('Получены некорректные значения расстояния или времени.');
+  if(data.code!=='Ok'||!Array.isArray(data.routes)||!data.routes.length)throw new Error('Не удалось построить автомобильный маршрут по координатам из ссылки.');
+  if(Array.isArray(data.waypoints)&&data.waypoints.length!==points.length)throw new Error('Сервис сопоставил не все точки маршрута.');
+  const legs=data.routes[0].legs;
+  if(!Array.isArray(legs)||legs.length!==points.length-1)throw new Error('Сервис не вернул данные по всем '+(points.length-1)+' участкам маршрута.');
+  const totals=summarizeRouteLegs(legs);
   if(requestId!==routeRequestId)return;
-  $('helloPackageKm').value=String(packageKm);
-  $('driveHours').value=String(Math.floor(outerDriveMinutes/60));
-  $('driveMinutes').value=String(outerDriveMinutes%60);
+  const changedDuringLoad=Object.keys(routeFieldEditVersion).filter(key=>routeFieldEditVersion[key]!==editVersionSnapshot[key]);
+  applyingRouteValues=true;
+  try{
+   if(!changedDuringLoad.includes('km'))$('km').value=totals.totalKm.toFixed(1);
+   if(!changedDuringLoad.includes('rentalTime')){
+    $('hours').value=String(Math.floor(totals.totalMinutes/60));
+    $('minutes').value=String(totals.totalMinutes%60);
+   }
+   if(!changedDuringLoad.includes('outerDrive')){
+    $('driveHours').value=String(Math.floor(totals.outerDriveMinutes/60));
+    $('driveMinutes').value=String(totals.outerDriveMinutes%60);
+   }
+   if(!changedDuringLoad.includes('packageKm'))$('helloPackageKm').value=totals.packageKm.toFixed(1);
+  }finally{applyingRouteValues=false;}
+  Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=changedDuringLoad.includes(key));
+  routeImported=true;
+  routePointCount=points.length;
+  routeLegCount=legs.length;
   lastAppliedRouteLink=raw;
-  const totalKm=totalDistance/1000;
-  const message='Готово: весь маршрут '+fmt(totalKm)+' км · крайние участки по минутному тарифу '+timeText(outerDriveMinutes)+' · пробег центральной части для абонемента '+fmt(packageKm)+' км. Общий пробег и время аренды введи вручную; ожидание рассчитается автоматически.';
-  status.textContent=message;
+  renderRouteLegDetails(legs);
+  updateRouteFieldStatuses();
+  status.textContent='Маршрут загружен · '+points.length+' точек / '+legs.length+' участков · всего '+formatRouteKm(totals.totalKm)+' км за '+timeText(totals.totalMinutes);
   status.className='route-status success';
-  if(points.length<4)status.textContent+=' Для комбинированного тарифа нужны промежуточные точки между первым и последним участками.';
   calcAll();
  }catch(error){
   if(requestId!==routeRequestId)return;
-  status.textContent=(error&&error.message?error.message:'Не удалось рассчитать маршрут.')+' Время крайних участков и километраж абонемента можно ввести вручную.';
+  status.textContent='Не удалось получить данные маршрута: '+(error&&error.message?error.message:'неизвестная ошибка')+'. Ранее введённые значения сохранены.';
   status.className='route-status error';
  }finally{
-  if(requestId===routeRequestId){routeInFlightUrl='';button.disabled=false;button.textContent='Рассчитать';}
+  if(requestId===routeRequestId){routeInFlightUrl='';button.disabled=false;button.textContent='Обновить по ссылке';updateRouteFieldStatuses();}
  }
 }
 // Existing bonus percentage and rounding retained; only comparison/presentation is new.
@@ -3011,15 +3081,66 @@ function calcAll(){
   holder.append(board);
  }
 }
-for(const id of ['km','hours','minutes','driveHours','driveMinutes','helloPackageKm'])$(id).addEventListener('input',calcAll);
-$('routeCalculate').addEventListener('click',calculateRouteFromYandexLink);
-$('routeUrl').addEventListener('change',calculateRouteFromYandexLink);
-$('routeUrl').addEventListener('paste',()=>setTimeout(calculateRouteFromYandexLink,0));
+const routeInputGroups={km:'km',hours:'rentalTime',minutes:'rentalTime',driveHours:'outerDrive',driveMinutes:'outerDrive',helloPackageKm:'packageKm'};
+for(const [id,key] of Object.entries(routeInputGroups))$(id).addEventListener('input',()=>{markRouteFieldManual(key);calcAll();});
+$('routeCalculate').addEventListener('click',()=>{
+ if(routeInputTimer)clearTimeout(routeInputTimer);
+ routeInputTimer=null;
+ const snapshot=routePendingEditVersion||{...routeFieldEditVersion};
+ routePendingEditVersion=null;
+ calculateRouteFromYandexLink(true,snapshot);
+});
+$('routeUrl').addEventListener('change',()=>{
+ if(routeInputTimer)clearTimeout(routeInputTimer);
+ routeInputTimer=null;
+ const snapshot=routePendingEditVersion||{...routeFieldEditVersion};
+ routePendingEditVersion=null;
+ calculateRouteFromYandexLink(false,snapshot);
+});
 $('routeUrl').addEventListener('input',()=>{
- const value=$('routeUrl').value.trim();
- if(!value){$('routeStatus').textContent=ROUTE_STATUS_DEFAULT;$('routeStatus').className='route-status';}
- else if(value!==lastAppliedRouteLink){$('routeStatus').textContent='Ссылка изменена. Рассчитай маршрут, чтобы обновить время крайних участков и километраж центральной части для абонемента.';$('routeStatus').className='route-status';}
+ const value=$('routeUrl').value.trim(),status=$('routeStatus'),button=$('routeCalculate');
+ if(routeInputTimer)clearTimeout(routeInputTimer);
+ routeInputTimer=null;
+ if(!value){
+  routeRequestId++;routeInFlightUrl='';routeImported=false;routePointCount=0;routeLegCount=0;lastAppliedRouteLink='';routePendingEditVersion=null;
+  button.disabled=false;button.textContent='Обновить по ссылке';
+  status.textContent=ROUTE_STATUS_DEFAULT;status.className='route-status';
+  $('routeDetails').hidden=true;$('routeLegList').replaceChildren();
+  updateRouteFieldStatuses();
+  return;
+ }
+ if(value===lastAppliedRouteLink){
+  if(routeInFlightUrl){routeRequestId++;routeInFlightUrl='';button.disabled=false;button.textContent='Обновить по ссылке';}
+  routePendingEditVersion=null;
+  updateRouteFieldStatuses();
+  return;
+ }
+ routeRequestId++;routeInFlightUrl='';
+ if(!routePendingEditVersion)routePendingEditVersion={...routeFieldEditVersion};
+ button.disabled=false;button.textContent='Обновить по ссылке';
+ status.textContent='Ссылка изменена. Подготавливаю новый маршрут…';status.className='route-status';
+ $('routeDetails').hidden=true;$('routeLegList').replaceChildren();
+ routeInputTimer=setTimeout(()=>{
+  routeInputTimer=null;
+  const snapshot=routePendingEditVersion||{...routeFieldEditVersion};
+  routePendingEditVersion=null;
+  calculateRouteFromYandexLink(false,snapshot);
+ },650);
 });
 for(const chip of document.querySelectorAll('[data-provider]'))chip.addEventListener('click',()=>{provider=chip.dataset.provider;document.querySelectorAll('[data-provider]').forEach(c=>c.classList.toggle('active',c===chip));calcAll();});
-$('reset').addEventListener('click',()=>{$('results').replaceChildren();for(const [id,v] of [['km','30'],['hours','2'],['minutes','0'],['driveHours','1'],['driveMinutes','30'],['helloPackageKm','0']])$(id).value=v;$('routeUrl').value='';routeRequestId++;routeInFlightUrl='';lastAppliedRouteLink='';$('routeStatus').textContent=ROUTE_STATUS_DEFAULT;$('routeStatus').className='route-status';$('routeCalculate').disabled=false;$('routeCalculate').textContent='Рассчитать';provider='all';document.querySelectorAll('[data-provider]').forEach(c=>c.classList.toggle('active',c.dataset.provider==='all'));calcAll();});
+$('reset').addEventListener('click',()=>{
+ $('results').replaceChildren();
+ for(const [id,v] of [['km','30'],['hours','2'],['minutes','0'],['driveHours','1'],['driveMinutes','30'],['helloPackageKm','0']])$(id).value=v;
+ $('routeUrl').value='';
+ if(routeInputTimer)clearTimeout(routeInputTimer);
+ routeInputTimer=null;routeRequestId++;routeInFlightUrl='';lastAppliedRouteLink='';routeImported=false;routePointCount=0;routeLegCount=0;routePendingEditVersion=null;applyingRouteValues=false;
+ Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=false);
+ $('routeStatus').textContent=ROUTE_STATUS_DEFAULT;$('routeStatus').className='route-status';
+ $('routeDetails').hidden=true;$('routeLegList').replaceChildren();
+ $('routeCalculate').disabled=false;$('routeCalculate').textContent='Обновить по ссылке';
+ updateRouteFieldStatuses();
+ provider='all';document.querySelectorAll('[data-provider]').forEach(c=>c.classList.toggle('active',c.dataset.provider==='all'));
+ calcAll();
+});
+updateRouteFieldStatuses();
 initTariffs();
