@@ -63,13 +63,18 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
 .route-leg-row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid #edf0f3}
 .route-leg-row strong{font-weight:650;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
 @media(max-width:400px){.route-leg-row{font-size:11px}.route-leg-row strong{font-size:11px}}
+
+.route-status.warning{color:#946200}
+.route-leg-content{display:grid;gap:3px;min-width:0;flex:1}
+.route-leg-sources{display:block;color:var(--muted);font-size:10px;line-height:1.35;white-space:normal}
+.route-leg-warning{display:block;color:#946200;font-size:10px;line-height:1.35;font-weight:650}
 </style></head><body><div class="wrap"><header><div><h1>Anytime <span style="color:#93a2b5">vs</span> Hello</h1></div><div class="badgetop" id="dataStatus" title="Hello: официальный сайт. Anytime: публичная проверка и ручное подтверждение полной тарифной матрицы.">Данные: 25.11.2026 · резервная база</div></header>
 <div class="panel"><section class="route-panel" aria-label="Маршрут">
  <div class="route-head"><label for="routeUrl">Маршрут</label><span>Ссылка на Яндекс Карты</span></div>
  <div class="route-entry"><input id="routeUrl" type="url" inputmode="url" placeholder="Ссылка Я.Карт" autocomplete="off"><button id="routeCalculate" type="button">Обновить по ссылке</button></div>
  <div id="routeStatus" class="route-status" aria-live="polite"></div>
  <details id="routeDetails" class="route-details" hidden><summary id="routeDetailsSummary">Проверить участки маршрута</summary><div id="routeLegList" class="route-leg-list"></div></details>
- <div class="route-attribution">Расчёт автомобильного маршрута: <a href="https://project-osrm.org/" target="_blank" rel="noopener">OSRM</a> · данные <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap (ODbL)</a>. Не учитывает пробки Яндекса; расстояния и время могут отличаться.</div>
+ <div class="route-attribution">Сверка трёх бесплатных маршрутизаторов: <a href="https://project-osrm.org/" target="_blank" rel="noopener">OSRM</a>, <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> и <a href="https://brouter.de/" target="_blank" rel="noopener">BRouter</a>. Расстояние и время каждого участка — медиана результатов. Данные <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap (ODbL)</a>; пробки Яндекса не учитываются.</div>
 </section>
 <div class="formgrid">
 <div class="field"><label for="km">Километров</label><input id="km" type="number" step="0.1" min="0" max="20000" value="30"><small id="kmStatus" class="route-field-status">Общий пробег</small></div>

@@ -2801,7 +2801,7 @@ const timeText=m=>[Math.floor(m/60)?`${Math.floor(m/60)} ч`:'',m%60?`${m%60} м
 
 const ROUTE_STATUS_DEFAULT='';
 let routeRequestId=0,routeInFlightUrl='',lastAppliedRouteLink='',lastRouteRequestAt=0;
-let routeInputTimer=null,routeImported=false,applyingRouteValues=false,routePointCount=0,routeLegCount=0,routePendingEditVersion=null;
+let routeInputTimer=null,routeImported=false,applyingRouteValues=false,routePointCount=0,routeLegCount=0,routePendingEditVersion=null,routeSourceLabel='',routeSpreadCount=0,routeProviderWarning='';
 const routeFieldManual={km:false,rentalTime:false,outerDrive:false,packageKm:false};
 const routeFieldEditVersion={km:0,rentalTime:0,outerDrive:0,packageKm:0};
 function parseYandexRouteLink(raw){
@@ -2846,8 +2846,96 @@ function summarizeRouteLegs(legs){
   outerDriveMinutes:Math.round(outerDurationSeconds/60)
  };
 }
+function medianRouteValue(values){
+ const sorted=values.map(Number).sort((a,b)=>a-b);
+ if(!sorted.length||sorted.some(value=>!Number.isFinite(value)))throw new Error('Не удалось согласовать значения маршрутизаторов.');
+ const middle=Math.floor(sorted.length/2);
+ return sorted.length%2?sorted[middle]:(sorted[middle-1]+sorted[middle])/2;
+}
+function combineRouteEngineResults(results,expectedLegCount){
+ const labels={osrm:'OSRM',valhalla:'Valhalla',brouter:'BRouter'};
+ const names=Object.keys(results).filter(name=>results[name]&&Array.isArray(results[name].legs)&&results[name].legs.length===expectedLegCount);
+ if(!names.length)throw new Error('Ни один бесплатный маршрутизатор не вернул полный маршрут.');
+ const legs=[],comparisons=[];
+ for(let index=0;index<expectedLegCount;index++){
+  const sources=names.map(name=>{
+   const leg=results[name].legs[index];
+   const distance=Number(leg&&leg.distance),duration=Number(leg&&leg.duration);
+   if(!Number.isFinite(distance)||distance<0||!Number.isFinite(duration)||duration<0)throw new Error(labels[name]+' вернул некорректные данные участка '+(index+1)+'.');
+   return {name:labels[name]||name,distance,duration};
+  });
+  const distance=medianRouteValue(sources.map(item=>item.distance));
+  const duration=medianRouteValue(sources.map(item=>item.duration));
+  const distanceSpread=Math.max(...sources.map(item=>item.distance))-Math.min(...sources.map(item=>item.distance));
+  const durationSpread=Math.max(...sources.map(item=>item.duration))-Math.min(...sources.map(item=>item.duration));
+  const warning=distanceSpread>Math.max(5000,distance*0.10);
+  legs.push({distance,duration});
+  comparisons.push({sources,distanceSpread,durationSpread,warning,selectedDistance:distance,selectedDuration:duration});
+ }
+ return {legs,comparisons,names};
+}
 function formatRouteKm(value){
  return Number(value).toLocaleString('ru-RU',{minimumFractionDigits:1,maximumFractionDigits:1});
+}
+async function fetchOsrmRoute(points){
+ const coordinates=points.map(point=>point.lon+','+point.lat).join(';');
+ const endpoint='https://router.project-osrm.org/route/v1/driving/'+coordinates+'?overview=false&steps=false&alternatives=false';
+ const response=await fetch(endpoint,{cache:'no-store'});
+ if(!response.ok)throw new Error('OSRM HTTP '+response.status);
+ const data=await response.json();
+ if(data.code!=='Ok'||!Array.isArray(data.routes)||!data.routes.length)throw new Error(data.message||'OSRM не построил маршрут.');
+ if(Array.isArray(data.waypoints)&&data.waypoints.length!==points.length)throw new Error('OSRM сопоставил не все точки.');
+ const legs=data.routes[0].legs;
+ if(!Array.isArray(legs)||legs.length!==points.length-1)throw new Error('OSRM вернул не все участки.');
+ return {legs:legs.map(leg=>({distance:Number(leg.distance),duration:Number(leg.duration)}))};
+}
+async function fetchValhallaRoute(points){
+ const payload={
+  locations:points.map(point=>({lat:point.lat,lon:point.lon,type:'break',radius:150})),
+  costing:'auto',
+  units:'kilometers',
+  language:'ru-RU',
+  directions_type:'none',
+  id:'max8257479-max.github.io'
+ };
+ const response=await fetch('https://valhalla1.openstreetmap.de/route',{
+  method:'POST',
+  headers:{'Content-Type':'application/json','X-Client-Id':'max8257479-max.github.io'},
+  body:JSON.stringify(payload),
+  cache:'no-store'
+ });
+ if(!response.ok)throw new Error('Valhalla HTTP '+response.status);
+ const data=await response.json();
+ const legs=data&&data.trip&&data.trip.legs;
+ if(!Array.isArray(legs)||legs.length!==points.length-1)throw new Error((data&&data.error)||'Valhalla вернула не все участки.');
+ return {legs:legs.map(leg=>({
+  distance:Number(leg.summary&&leg.summary.length)*1000,
+  duration:Number(leg.summary&&leg.summary.time)
+ }))};
+}
+async function fetchBRouterRoute(points,requestId){
+ const legs=[];
+ for(let index=0;index<points.length-1;index++){
+  if(requestId!==routeRequestId)throw new Error('Загрузка отменена: ссылка изменена.');
+  const first=points[index],last=points[index+1];
+  const params=new URLSearchParams({
+   lonlats:first.lon+','+first.lat+'|'+last.lon+','+last.lat,
+   profile:'car-eco',
+   alternativeidx:'0',
+   format:'geojson'
+  });
+  const response=await fetch('https://brouter.de/brouter?'+params.toString(),{cache:'no-store'});
+  if(!response.ok)throw new Error('BRouter HTTP '+response.status+' на участке '+(index+1)+'.');
+  const data=await response.json();
+  const feature=data&&Array.isArray(data.features)&&data.features[0];
+  const properties=feature&&feature.properties;
+  const distance=Number(properties&&properties['track-length']);
+  const duration=Number(properties&&properties['total-time']);
+  if(!Number.isFinite(distance)||distance<0||!Number.isFinite(duration)||duration<0)throw new Error('BRouter вернул некорректные данные участка '+(index+1)+'.');
+  legs.push({distance,duration});
+  if(index<points.length-2)await new Promise(resolve=>setTimeout(resolve,1200));
+ }
+ return {legs};
 }
 function updateRouteFieldStatuses(){
  const fields=[
@@ -2866,21 +2954,37 @@ function updateRouteFieldStatuses(){
   const changed=Object.entries(routeFieldManual).filter(([,value])=>value).map(([key])=>({
    km:'километраж',rentalTime:'время аренды',outerDrive:'время крайних участков',packageKm:'километраж абонемента'
   })[key]);
-  $('routeStatus').textContent='Маршрут загружен · '+routePointCount+' точек / '+routeLegCount+' участков'+(changed.length?' · Изменено вручную: '+changed.join(', '):'');
-  $('routeStatus').className='route-status success';
+  const warnings=routeSpreadCount?' · Расхождения на '+routeSpreadCount+' участках':'';
+  const failed=routeProviderWarning?' · Недоступны: '+routeProviderWarning:'';
+  $('routeStatus').textContent='Маршрут загружен · '+routePointCount+' точек / '+routeLegCount+' участков · '+routeSourceLabel+warnings+failed+(changed.length?' · Изменено вручную: '+changed.join(', '):'');
+  $('routeStatus').className='route-status '+((routeSpreadCount||routeProviderWarning)?'warning':'success');
  }
 }
-function renderRouteLegDetails(legs){
+function renderRouteLegDetails(legs,comparisons){
  const list=$('routeLegList');
  list.replaceChildren();
  legs.forEach((leg,index)=>{
   const row=document.createElement('div');row.className='route-leg-row';
+  const content=document.createElement('div');content.className='route-leg-content';
   const label=document.createElement('span');label.textContent='Участок '+index+' → '+(index+1);
   const value=document.createElement('strong');
   value.textContent=formatRouteKm(Number(leg.distance)/1000)+' км · '+timeText(Math.round(Number(leg.duration)/60));
-  row.append(label,value);list.append(row);
+  content.append(label);
+  const comparison=comparisons&&comparisons[index];
+  if(comparison){
+   const sources=document.createElement('small');
+   sources.className='route-leg-sources';
+   sources.textContent=comparison.sources.map(item=>item.name+': '+formatRouteKm(item.distance/1000)+' км / '+timeText(Math.round(item.duration/60))).join(' · ');
+   content.append(sources);
+   if(comparison.warning){
+    const warning=document.createElement('small');warning.className='route-leg-warning';
+    warning.textContent='Разброс расстояний: '+formatRouteKm(comparison.distanceSpread/1000)+' км';
+    content.append(warning);
+   }
+  }
+  row.append(content,value);list.append(row);
  });
- $('routeDetailsSummary').textContent='Проверить участки маршрута ('+legs.length+')';
+ $('routeDetailsSummary').textContent='Участки и сравнение маршрутизаторов ('+legs.length+')';
  $('routeDetails').hidden=false;
 }
 function markRouteFieldManual(key){
@@ -2897,23 +3001,27 @@ async function calculateRouteFromYandexLink(force=false,editVersionAtLink=null){
  const editVersionSnapshot=editVersionAtLink||{...routeFieldEditVersion};
  routeInFlightUrl=raw;
  button.disabled=true;button.textContent='Загружаем…';
- status.className='route-status';status.textContent='Загружаем маршрут…';
+ status.className='route-status';status.textContent='Сравниваю три бесплатных маршрутизатора…';
  try{
   const points=parseYandexRouteLink(raw);
   const waitMs=Math.max(0,1000-(Date.now()-lastRouteRequestAt));
   if(waitMs)await new Promise(resolve=>setTimeout(resolve,waitMs));
   if(requestId!==routeRequestId)return;
   lastRouteRequestAt=Date.now();
-  const coordinates=points.map(point=>point.lon+','+point.lat).join(';');
-  const endpoint='https://router.project-osrm.org/route/v1/driving/'+coordinates+'?overview=false&steps=false&alternatives=false';
-  const response=await fetch(endpoint,{cache:'no-store'});
-  if(!response.ok)throw new Error('Сервис расчёта маршрута недоступен (HTTP '+response.status+').');
-  const data=await response.json();
-  if(data.code!=='Ok'||!Array.isArray(data.routes)||!data.routes.length)throw new Error('Не удалось построить автомобильный маршрут по координатам из ссылки.');
-  if(Array.isArray(data.waypoints)&&data.waypoints.length!==points.length)throw new Error('Сервис сопоставил не все точки маршрута.');
-  const legs=data.routes[0].legs;
-  if(!Array.isArray(legs)||legs.length!==points.length-1)throw new Error('Сервис не вернул данные по всем '+(points.length-1)+' участкам маршрута.');
-  const totals=summarizeRouteLegs(legs);
+  const settled=await Promise.allSettled([
+   fetchOsrmRoute(points),
+   fetchValhallaRoute(points),
+   fetchBRouterRoute(points,requestId)
+  ]);
+  if(requestId!==routeRequestId)return;
+  const names=['osrm','valhalla','brouter'];
+  const results={},errors={};
+  settled.forEach((item,index)=>{
+   if(item.status==='fulfilled')results[names[index]]=item.value;
+   else errors[names[index]]=item.reason&&item.reason.message?item.reason.message:'ошибка запроса';
+  });
+  const combined=combineRouteEngineResults(results,points.length-1);
+  const totals=summarizeRouteLegs(combined.legs);
   if(requestId!==routeRequestId)return;
   const changedDuringLoad=Object.keys(routeFieldEditVersion).filter(key=>routeFieldEditVersion[key]!==editVersionSnapshot[key]);
   applyingRouteValues=true;
@@ -2932,12 +3040,15 @@ async function calculateRouteFromYandexLink(force=false,editVersionAtLink=null){
   Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=changedDuringLoad.includes(key));
   routeImported=true;
   routePointCount=points.length;
-  routeLegCount=legs.length;
+  routeLegCount=combined.legs.length;
+  routeSourceLabel=combined.names.map(name=>({osrm:'OSRM',valhalla:'Valhalla',brouter:'BRouter'}[name]||name)).join(' + ');
+  routeSpreadCount=combined.comparisons.filter(item=>item.warning).length;
+  routeProviderWarning=Object.keys(errors).map(name=>({osrm:'OSRM',valhalla:'Valhalla',brouter:'BRouter'}[name]||name)).join(', ');
   lastAppliedRouteLink=raw;
-  renderRouteLegDetails(legs);
+  renderRouteLegDetails(combined.legs,combined.comparisons);
   updateRouteFieldStatuses();
-  status.textContent='Маршрут загружен · '+points.length+' точек / '+legs.length+' участков · всего '+formatRouteKm(totals.totalKm)+' км за '+timeText(totals.totalMinutes);
-  status.className='route-status success';
+  status.textContent='Маршрут рассчитан по '+combined.names.length+' сервисам · '+points.length+' точек / '+combined.legs.length+' участков · '+formatRouteKm(totals.totalKm)+' км · '+timeText(totals.totalMinutes)+(routeSpreadCount?' · Есть расхождения, проверь участки':'')+(routeProviderWarning?' · Недоступны: '+routeProviderWarning:'');
+  status.className='route-status '+((routeSpreadCount||routeProviderWarning)?'warning':'success');
   calcAll();
  }catch(error){
   if(requestId!==routeRequestId)return;
@@ -3102,7 +3213,7 @@ $('routeUrl').addEventListener('input',()=>{
  if(routeInputTimer)clearTimeout(routeInputTimer);
  routeInputTimer=null;
  if(!value){
-  routeRequestId++;routeInFlightUrl='';routeImported=false;routePointCount=0;routeLegCount=0;lastAppliedRouteLink='';routePendingEditVersion=null;
+  routeRequestId++;routeInFlightUrl='';routeImported=false;routePointCount=0;routeLegCount=0;lastAppliedRouteLink='';routePendingEditVersion=null;routeSourceLabel='';routeSpreadCount=0;routeProviderWarning='';
   button.disabled=false;button.textContent='Обновить по ссылке';
   status.textContent=ROUTE_STATUS_DEFAULT;status.className='route-status';
   $('routeDetails').hidden=true;$('routeLegList').replaceChildren();
@@ -3133,7 +3244,7 @@ $('reset').addEventListener('click',()=>{
  for(const [id,v] of [['km','30'],['hours','2'],['minutes','0'],['driveHours','1'],['driveMinutes','30'],['helloPackageKm','0']])$(id).value=v;
  $('routeUrl').value='';
  if(routeInputTimer)clearTimeout(routeInputTimer);
- routeInputTimer=null;routeRequestId++;routeInFlightUrl='';lastAppliedRouteLink='';routeImported=false;routePointCount=0;routeLegCount=0;routePendingEditVersion=null;applyingRouteValues=false;
+ routeInputTimer=null;routeRequestId++;routeInFlightUrl='';lastAppliedRouteLink='';routeImported=false;routePointCount=0;routeLegCount=0;routePendingEditVersion=null;routeSourceLabel='';routeSpreadCount=0;routeProviderWarning='';applyingRouteValues=false;
  Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=false);
  $('routeStatus').textContent=ROUTE_STATUS_DEFAULT;$('routeStatus').className='route-status';
  $('routeDetails').hidden=true;$('routeLegList').replaceChildren();
