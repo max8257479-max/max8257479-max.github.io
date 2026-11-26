@@ -83,20 +83,22 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
 @media(max-width:790px){.trip-inputs{grid-template-columns:repeat(2,minmax(0,1fr))}.hello-inputs-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:460px){.trip-inputs,.hello-inputs-grid{grid-template-columns:1fr}.hello-inputs{padding:13px}}
 
-.trip-distance-field,.trip-total-time-field{padding:0;min-width:0;border:0;border-radius:0;background:transparent;box-shadow:none}
-.trip-distance-field label,.trip-total-time-field label{display:block;margin:0 0 7px;font-size:13px;font-weight:650;color:#344253}
+.trip-distance-field,.trip-total-time-field{padding:9px 10px;min-width:0;border:1px solid #dbe6f0;border-radius:11px;background:linear-gradient(135deg,#f4f8fc 0%,#f9fbfd 100%);box-shadow:0 2px 8px rgba(40,66,95,.055)}
+.trip-distance-field label,.trip-total-time-field label{display:block;margin:0 0 7px;font-size:13px;font-weight:750;color:#334b62}
 .hello-segments{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .hello-segment-card{min-width:0;padding:13px;border:1px solid #d8e5dd;border-radius:11px;background:#fff}
 .hello-segment-card h4,.hello-subgroup h4{margin:0 0 10px;font-size:14px;font-weight:800;color:#244b3a}
 .hello-segment-fields{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;align-items:start}
 .hello-time-field label{display:block;font-size:13px;font-weight:700;margin:0 0 7px}
-.hello-subgroup{margin-top:14px;padding-top:13px;border-top:1px solid #dce8e0}
+.hello-summary-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;margin-top:14px}
+.hello-subgroup{margin-top:0;padding-top:13px;border-top:1px solid #dce8e0}
 .hello-derived-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .hello-package-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .hello-derived-grid .field{min-width:0}
 .hello-derived-grid output{display:flex;align-items:center;min-height:46px;padding:10px 12px;border:1px solid #d8e0e7;border-radius:9px;background:#fff;color:var(--ink);font-size:15px;font-variant-numeric:tabular-nums}
 .hello-derived-grid output.invalid{background:#fff3da;color:#815300;border-color:#e8d39f}
 @media(max-width:790px){.hello-segments{grid-template-columns:1fr}.hello-segment-fields{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.hello-summary-row{grid-template-columns:1fr}}
 @media(max-width:460px){.trip-inputs{grid-template-columns:1fr}.hello-inputs{padding:13px}.hello-segment-fields,.hello-derived-grid{grid-template-columns:1fr}}
 </style></head><body><div class="wrap"><header><div><h1>Anytime <span style="color:#93a2b5">vs</span> Hello</h1></div><div class="badgetop" id="dataStatus" title="Hello: официальный сайт. Anytime: публичная проверка и ручное подтверждение полной тарифной матрицы.">Данные: 25.11.2026 · резервная база</div></header>
 <div class="panel"><section class="route-panel" aria-label="Маршрут">
@@ -107,8 +109,8 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
  <div class="route-attribution">Медиана результатов <a href="https://project-osrm.org/" target="_blank" rel="noopener">OSRM</a>, <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a>, <a href="https://brouter.de/" target="_blank" rel="noopener">BRouter</a> · Данные <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap (ODbL)</a></div>
 </section>
 <div class="formgrid trip-inputs">
-<fieldset class="field timefield"><legend>Время за рулём</legend><div class="timepair"><div><input id="driveTimeHours" aria-label="Время за рулём — часы" type="number" step="1" min="0" max="720" value="1"><small>часы</small></div><div><input id="driveTimeMinutes" aria-label="Время за рулём — минуты" type="number" step="1" min="0" max="59" value="30"><small>минуты</small></div></div><small id="driveTimeStatus" class="route-field-status">Суммарное время движения по всем участкам</small></fieldset>
-<div class="field trip-distance-field"><label for="km">Км</label><input id="km" type="number" step="0.1" min="0" max="20000" value="30"><small id="kmStatus" class="route-field-status">Общий пробег</small></div>
+<fieldset class="field timefield"><legend>Время за рулём</legend><div class="timepair"><div><input id="driveTimeHours" aria-label="Время за рулём — часы" type="number" step="1" min="0" max="720" value="1"><small>часы</small></div><div><input id="driveTimeMinutes" aria-label="Время за рулём — минуты" type="number" step="1" min="0" max="59" value="30"><small>минуты</small></div></div></fieldset>
+<div class="field trip-distance-field"><label for="km">Км всей поездки</label><input id="km" type="number" step="0.1" min="0" max="20000" value="30"><small id="kmStatus" class="route-field-status">Общий пробег</small></div>
 <fieldset class="field timefield"><legend>Время на места</legend><div class="timepair"><div><input id="placesHours" aria-label="Время на места — часы" type="number" step="1" min="0" max="720" value="0"><small>часы</small></div><div><input id="placesMinutes" aria-label="Время на места — минуты" type="number" step="1" min="0" max="59" value="30"><small>минуты</small></div></div><small>Суммарное время на всех остановках</small></fieldset>
 <div class="field timefield trip-total-time-field"><label for="tripHours">Время всей поездки</label><div class="timepair"><div><input id="tripHours" aria-label="Время всей поездки — часы" type="number" step="1" min="0" max="720" value="2"><small>часы</small></div><div><input id="tripMinutes" aria-label="Время всей поездки — минуты" type="number" step="1" min="0" max="59" value="0"><small>минуты</small></div></div><small id="tripTimeStatus" class="route-field-status imported">Auto: время за рулём + места</small></div>
 </div>
@@ -118,32 +120,34 @@ body{background:linear-gradient(180deg,#eaf0f5 0,#f4f6f8 360px);font:15px/1.45 s
   <div class="hello-segment-card">
    <h4>Первый участок</h4>
    <div class="hello-segment-fields">
-    <div class="field hello-time-field"><label>Время</label><div class="timepair"><div><input id="firstDriveHours" aria-label="Время первого участка — часы" type="number" step="1" min="0" max="720" value="0"><small>часы</small></div><div><input id="firstDriveMinutes" aria-label="Время первого участка — минуты" type="number" step="1" min="0" max="59" value="45"><small>минуты</small></div></div><small id="firstDriveStatus" class="route-field-status">Время первого участка</small></div>
+    <div class="field hello-time-field"><label>Время</label><div class="timepair"><div><input id="firstDriveHours" aria-label="Время первого участка — часы" type="number" step="1" min="0" max="720" value="0"><small>часы</small></div><div><input id="firstDriveMinutes" aria-label="Время первого участка — минуты" type="number" step="1" min="0" max="59" value="45"><small>минуты</small></div></div></div>
     <div class="field"><label for="firstKm">Км</label><input id="firstKm" type="number" inputmode="decimal" step="0.1" min="0" max="20000" value="15"><small id="firstKmStatus" class="route-field-status">Км первого участка</small></div>
    </div>
   </div>
   <div class="hello-segment-card">
    <h4>Последний участок</h4>
    <div class="hello-segment-fields">
-    <div class="field hello-time-field"><label>Время</label><div class="timepair"><div><input id="lastDriveHours" aria-label="Время последнего участка — часы" type="number" step="1" min="0" max="720" value="0"><small>часы</small></div><div><input id="lastDriveMinutes" aria-label="Время последнего участка — минуты" type="number" step="1" min="0" max="59" value="45"><small>минуты</small></div></div><small id="lastDriveStatus" class="route-field-status">Время последнего участка</small></div>
+    <div class="field hello-time-field"><label>Время</label><div class="timepair"><div><input id="lastDriveHours" aria-label="Время последнего участка — часы" type="number" step="1" min="0" max="720" value="0"><small>часы</small></div><div><input id="lastDriveMinutes" aria-label="Время последнего участка — минуты" type="number" step="1" min="0" max="59" value="45"><small>минуты</small></div></div></div>
     <div class="field"><label for="lastKm">Км</label><input id="lastKm" type="number" inputmode="decimal" step="0.1" min="0" max="20000" value="15"><small id="lastKmStatus" class="route-field-status">Км последнего участка</small></div>
    </div>
   </div>
  </div>
- <section class="hello-subgroup">
-  <h4>Суммарно по 1-му и последнему участкам</h4>
-  <div class="hello-derived-grid">
-   <div class="field derived-field"><label>Время</label><output id="outerDriveTotal" aria-live="polite" for="firstDriveHours firstDriveMinutes lastDriveHours lastDriveMinutes">1 ч 30 мин</output></div>
-   <div class="field derived-field"><label>Км</label><output id="outerKmTotal" aria-live="polite" for="firstKm lastKm">30 км</output></div>
-  </div>
- </section>
- <section class="hello-subgroup">
-  <h4>Абонемент (середина пути)</h4>
-  <div class="hello-derived-grid hello-package-grid">
-   <div class="field derived-field"><label for="packageTime">Время</label><output id="packageTime" aria-live="polite" for="tripHours tripMinutes outerDriveTotal">30 мин</output></div>
-   <div class="field derived-field"><label for="packageKm">Км</label><output id="packageKm" aria-live="polite" for="km outerKmTotal">0 км</output></div>
-  </div>
- </section>
+ <div class="hello-summary-row">
+  <section class="hello-subgroup">
+   <h4>Суммарно по 1-му и последнему участкам</h4>
+   <div class="hello-derived-grid">
+    <div class="field derived-field"><label>Время</label><output id="outerDriveTotal" aria-live="polite" for="firstDriveHours firstDriveMinutes lastDriveHours lastDriveMinutes">1 ч 30 мин</output></div>
+    <div class="field derived-field"><label>Км</label><output id="outerKmTotal" aria-live="polite" for="firstKm lastKm">30 км</output></div>
+   </div>
+  </section>
+  <section class="hello-subgroup">
+   <h4>Абонемент (середина пути)</h4>
+   <div class="hello-derived-grid hello-package-grid">
+    <div class="field derived-field"><label for="packageTime">Время</label><output id="packageTime" aria-live="polite" for="tripHours tripMinutes outerDriveTotal">30 мин</output></div>
+    <div class="field derived-field"><label for="packageKm">Км</label><output id="packageKm" aria-live="polite" for="km outerKmTotal">0 км</output></div>
+   </div>
+  </section>
+ </div>
  <div id="helloPackageError" class="hello-km-error" aria-live="polite" hidden></div>
 </section><div class="controls"><button class="chip active" data-provider="all">Все сервисы</button><button class="chip" data-provider="Anytime">Anytime</button><button class="chip" data-provider="Hello">Hello</button><button id="reset" class="btnsecondary" style="margin-left:auto">Сбросить</button></div>
 </div>
