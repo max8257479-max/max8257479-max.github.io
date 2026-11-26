@@ -2969,10 +2969,7 @@ async function fetchBRouterRoute(points,requestId){
 function updateRouteFieldStatuses(){
   const fields=[
    ['km','kmStatus','Общий пробег'],
-   ['totalDrive','driveTimeStatus','Суммарное время движения по маршруту'],
-   ['firstDrive','firstDriveStatus','Время первого участка'],
    ['firstKm','firstKmStatus','Км первого участка'],
-   ['lastDrive','lastDriveStatus','Время последнего участка'],
    ['lastKm','lastKmStatus','Км последнего участка']
   ];
   for(const [key,id,defaultText] of fields){
@@ -3176,7 +3173,7 @@ function calcAll(){
  const showChoice=r=>{
   const hasBonus=bonusAmount(r.v,r.best.cost)>0;
   count.textContent=`${r.v.provider} — ${priceText(r.v,r.best)} руб`;
-  if(hasBonus){const suffix=document.createElement('span');suffix.className='bonus-suffix';suffix.textContent=' (с бонусом 10%)';count.append(suffix);gross.textContent=`Без бонуса: ${r.best.status==='подтверждено'?'':'≈ '}${fmtFinalPrice(r.best.cost)} руб`;gross.hidden=false;}
+  if(hasBonus){const suffix=document.createElement('span');suffix.className='bonus-suffix';suffix.textContent=' (с 10% бонусом)';count.append(suffix);gross.textContent=`Без бонуса: ${r.best.status==='подтверждено'?'':'≈ '}${fmtFinalPrice(r.best.cost)} руб`;gross.hidden=false;}
   winningModel.textContent=r.v.model;winningModel.hidden=false;
   tariff.textContent=tariffText(r);tariff.hidden=false;
  };
