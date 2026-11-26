@@ -130,6 +130,20 @@ jobs:
       - name: Check the supplied six-point route on public OSRM
         run: python scripts/check_osrm_sample_route.py
 
+  route_compare:
+    name: Compare public Valhalla and OSRM routes
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Compare the supplied six-point route on both public engines
+        run: python scripts/compare_route_engines.py
+
   update:
     name: Update tariff data
     if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && inputs.tariff_pr_number == '' && inputs.deploy_only != true
