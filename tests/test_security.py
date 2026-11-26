@@ -39,7 +39,7 @@ def test_pages_workflow_supports_safe_user_site_rename():
 
 def test_final_price_formatter_rounds_to_one_decimal():
     app = (ROOT / "app.js").read_text(encoding="utf-8")
-    match = re.search(r"const fmtFinalPrice=(n=>\\{.*?\\});", app, re.S)
+    match = re.search(r"const fmtFinalPrice=(n=>[{].*?[}]);", app, re.S)
     assert match is not None
     script = f"const fmtFinalPrice={match.group(1)}; console.log(JSON.stringify([fmtFinalPrice(19.87), fmtFinalPrice(19.84), fmtFinalPrice(20.05), fmtFinalPrice(20), fmtFinalPrice(7.99)]));"
     result = subprocess.run(["node", "-e", script], check=True, capture_output=True, text=True)
