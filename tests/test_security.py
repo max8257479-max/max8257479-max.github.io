@@ -139,7 +139,7 @@ def test_route_import_updates_first_and_last_legs_and_keeps_manual_edits_indepen
     assert 'id="routeCalculate" type="button">Обновить по ссылке</button>' in html
     assert 'id="routeDetails"' in html
     assert 'id="driveTimeHours"' in html and "Время за рулём" in html
-    assert 'id="km"' in html and '<label for="km">Км</label>' in html
+    assert 'id="km"' in html and '<label for="km">Км всей поездки</label>' in html
     assert "Километраж поездки" not in html
     assert "Время на места" in html
     assert "Время всей поездки" in html
@@ -151,10 +151,18 @@ def test_route_import_updates_first_and_last_legs_and_keeps_manual_edits_indepen
     assert '<label for="lastKm">Км</label>' in html
     assert "Км последнего участка" in html
     assert 'id="outerDriveTotal"' in html and 'id="outerKmTotal"' in html
+    assert 'id="driveTimeStatus"' not in html and 'id="driveTimeStatus"' not in app
+    assert "Суммарное время движения по всем участкам" not in html
+    assert 'id="firstDriveStatus"' not in html and 'id="firstDriveStatus"' not in app
+    assert 'id="lastDriveStatus"' not in html and 'id="lastDriveStatus"' not in app
+    assert "Время первого участка</small>" not in html
+    assert "Время последнего участка</small>" not in html
     assert 'label for="packageTime">Время</label>' in html and 'id="packageTime"' in html
     assert 'label for="packageKm">Км</label>' in html and 'id="packageKm"' in html
     assert "Абонемент (середина пути)" in html
     assert "Суммарно по 1-му и последнему участкам" in html
+    assert "с бонусом 10%" not in app
+    assert " (с 10% бонусом)" in app
     assert '<label>Время</label><output id="outerDriveTotal"' in html
     assert '<label>Км</label><output id="outerKmTotal"' in html
     assert "Суммарное время 1-го и последнего участков" not in html
@@ -167,7 +175,11 @@ def test_route_import_updates_first_and_last_legs_and_keeps_manual_edits_indepen
     assert 'class="field timefield trip-total-time-field"' in html
     assert 'label for="tripHours">Время всей поездки</label>' in html
     assert ".trip-inputs{grid-template-columns:repeat(4,minmax(0,1fr))" in html
-    assert ".trip-distance-field,.trip-total-time-field{padding:0" in html
+    assert ".trip-distance-field,.trip-total-time-field{padding:9px 10px" in html
+    assert "background:linear-gradient(135deg,#f4f8fc 0%,#f9fbfd 100%)" in html
+    assert 'class="hello-summary-row"' in html
+    assert ".hello-summary-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))" in html
+    assert "@media(max-width:600px){.hello-summary-row{grid-template-columns:1fr}}" in html
     assert "Автоматически: время за рулём + время на места" not in html
     assert "outerDriveHours" not in app and "outerDriveHours" not in html
     assert 'id="outerKm"' not in html
