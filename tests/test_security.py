@@ -146,7 +146,14 @@ def test_route_import_updates_first_and_last_legs_and_keeps_manual_edits_indepen
     assert "Последний участок" in html and 'id="lastKm"' in html
     assert 'id="outerDriveTotal"' in html and 'id="outerKmTotal"' in html
     assert "Время для абонемента" in html and 'id="packageTime"' in html
-    assert "Км для абонемента" in html and 'id="packageKm"' in html
+    assert "Км для абонемента" not in html and 'id="packageKm"' not in html
+    assert "Итоговое время 1-го и последнего участков" in html
+    assert "Итог км 1-го и последнего участков" in html
+    assert "Суммарное время 1-го и последнего участков" not in html
+    assert "Суммарный километраж 1-го и последнего участков" not in html
+    assert "Время всей поездки − суммарное время 1-го и последнего участков" not in html
+    assert "$('packageKm')" not in app and "const packageKmOutput" not in app
+    assert "packageKm=Math.round((d-outerKm+Number.EPSILON)*10)/10" in app
     assert "Первый и последний участки — минутный тариф, середина — абонемент ч+км" in html
     assert 'class="field timefield trip-total-time-field"' in html
     assert "Автоматически: время за рулём + время на места" not in html
