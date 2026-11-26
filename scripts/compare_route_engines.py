@@ -129,27 +129,65 @@ def osrm_route():
     }
 
 
+
+def brouter_route():
+    result = []
+    for index, (start, end) in enumerate(zip(POINTS, POINTS[1:])):
+        lonlats = f"{start[1]},{start[0]}|{end[1]},{end[0]}"
+        query = urlencode({
+            "lonlats": lonlats,
+            "profile": "car-fast",
+            "alternativeidx": "0",
+            "format": "geojson",
+        })
+        request = Request(
+            "https://brouter.de/brouter?" + query,
+            headers={
+                "Origin": ORIGIN,
+                "User-Agent": "AnytimeHelloCalculator/1.0 (+https://max8257479-max.github.io/)",
+            },
+        )
+        status, response_headers, data = fetch_json(request, timeout=60)
+        features = data.get("features") or []
+        if not features:
+            raise RuntimeError(f"BRouter leg {index} returned no GeoJSON feature: {str(data)[:500]}")
+        properties = features[0].get("properties") or {}
+        distance_m = float(properties.get("track-length", -1))
+        duration_s = float(properties.get("total-time", -1))
+        if not math.isfinite(distance_m) or distance_m < 0 or not math.isfinite(duration_s) or duration_s < 0:
+            raise RuntimeError(f"BRouter leg {index} returned invalid properties: {properties!r}")
+        result.append({
+            "from": index,
+            "to": index + 1,
+            "distance_km": distance_m / 1000,
+            "duration_s": duration_s,
+            "cors_allow_origin": response_headers.get("Access-Control-Allow-Origin"),
+        })
+        # Public community service: keep requests deliberately slow.
+        time.sleep(1.2)
+    return {"http_status": 200, "profile": "car-fast", "legs": result}
+
+
 def main():
     result = {}
     errors = {}
-    for name, fn in (("valhalla", valhalla_route), ("osrm", osrm_route)):
+    for name, fn in (("valhalla", valhalla_route), ("osrm", osrm_route), ("brouter", brouter_route)):
         try:
             result[name] = fn()
         except (HTTPError, URLError, TimeoutError, OSError, ValueError, RuntimeError) as exc:
             errors[name] = f"{type(exc).__name__}: {exc}"
         time.sleep(1.2)
 
-    if "valhalla" in result and "osrm" in result:
+    if len(result) >= 2:
+        engine_names = [name for name in ("valhalla", "osrm", "brouter") if name in result]
         result["comparison"] = []
-        for v, o in zip(result["valhalla"]["legs"], result["osrm"]["legs"]):
-            result["comparison"].append({
-                "segment": f'{v["from"]}→{v["to"]}',
-                "valhalla_km": round(v["distance_km"], 2),
-                "osrm_km": round(o["distance_km"], 2),
-                "distance_delta_km": round(v["distance_km"] - o["distance_km"], 2),
-                "valhalla_minutes": round(v["duration_s"] / 60),
-                "osrm_minutes": round(o["duration_s"] / 60),
-            })
+        for index in range(len(POINTS) - 1):
+            row = {"segment": f"{index}→{index + 1}"}
+            for name in engine_names:
+                leg = result[name]["legs"][index]
+                row[name + "_km"] = round(leg["distance_km"], 2)
+                row[name + "_minutes"] = round(leg["duration_s"] / 60)
+            result["comparison"].append(row)
 
     print(json.dumps({"results": result, "errors": errors}, ensure_ascii=False, indent=2))
     if "valhalla" not in result:
