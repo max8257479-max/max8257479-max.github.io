@@ -25,6 +25,10 @@ MANUAL_PATH = ROOT / "data" / "anytime_manual.json"
 WATCH_PATH = ROOT / "data" / "anytime_watch.json"
 HELLO_CATALOG = "https://hello.by/cars"
 ANYTIME_CATALOG = "https://carsync.by/carsharings/anytime"
+HELLO_HOSTS = {"hello.by", "www.hello.by"}
+ANYTIME_HOSTS = {"carsync.by", "www.carsync.by"}
+ALLOWED_FETCH_HOSTS = HELLO_HOSTS | ANYTIME_HOSTS
+REDIRECT_STATUSES = {301, 302, 303, 307, 308}
 TIMEOUT = 35
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; CarTariffUpdater/1.0; +https://github.com/)"
@@ -43,11 +47,50 @@ def date_stamp() -> str:
     return now_utc().date().isoformat()
 
 
+def validate_source_url(url: str, allowed_hosts: set[str] | frozenset[str] | None = None) -> str:
+    allowed = allowed_hosts if allowed_hosts is not None else ALLOWED_FETCH_HOSTS
+    try:
+        parsed = urlparse(url)
+        hostname = (parsed.hostname or "").lower().rstrip(".")
+        port = parsed.port
+    except ValueError as exc:
+        raise ParseError("Некорректный URL источника") from exc
+    if (
+        parsed.scheme.lower() != "https"
+        or hostname not in allowed
+        or parsed.username is not None
+        or parsed.password is not None
+        or port not in (None, 443)
+    ):
+        raise ParseError(f"Запрещён URL источника: {url}")
+    return parsed._replace(fragment="").geturl()
+
+
 def fetch_html(url: str) -> str:
-    response = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
-    response.raise_for_status()
-    response.encoding = response.apparent_encoding or "utf-8"
-    return response.text
+    initial = validate_source_url(url)
+    initial_host = (urlparse(initial).hostname or "").lower()
+    allowed_hosts = HELLO_HOSTS if initial_host in HELLO_HOSTS else ANYTIME_HOSTS
+    current = validate_source_url(initial, allowed_hosts)
+
+    # Follow redirects manually so trusted sources cannot redirect the runner
+    # to localhost, cloud metadata endpoints, or unrelated external hosts.
+    for redirect_count in range(4):
+        response = requests.get(
+            current,
+            headers=HEADERS,
+            timeout=TIMEOUT,
+            allow_redirects=False,
+        )
+        if response.status_code in REDIRECT_STATUSES:
+            location = response.headers.get("Location")
+            if not location or redirect_count == 3:
+                raise ParseError("Слишком много перенаправлений или отсутствует Location")
+            current = validate_source_url(urljoin(current, location), allowed_hosts)
+            continue
+        response.raise_for_status()
+        response.encoding = response.apparent_encoding or "utf-8"
+        return response.text
+    raise ParseError("Не удалось получить страницу источника")
 
 
 def clean_text(html: str) -> tuple[BeautifulSoup, str]:
@@ -83,6 +126,7 @@ def _package_label(amount: int, unit: str) -> str:
 
 
 def parse_hello_page(url: str, html: str, existing_by_url: dict[str, dict]) -> dict:
+    url = validate_source_url(url, HELLO_HOSTS)
     soup, text = clean_text(html)
 
     # Do not silently switch to another customer profile/discount tier.
@@ -138,7 +182,7 @@ def parse_hello_page(url: str, html: str, existing_by_url: dict[str, dict]) -> d
 
     canonical = soup.find("link", rel="canonical")
     canonical_url = canonical.get("href") if canonical and canonical.get("href") else url
-    canonical_url = urljoin(url, canonical_url)
+    canonical_url = validate_source_url(urljoin(url, canonical_url), HELLO_HOSTS)
     old = existing_by_url.get(canonical_url) or existing_by_url.get(url)
     slug = urlparse(canonical_url).path.rstrip("/").split("/")[-1]
     vehicle_id = old["id"] if old else f"hello-{slug}"
@@ -173,11 +217,13 @@ def discover_hello_urls(html: str) -> list[str]:
     seen = set()
     for anchor in soup.find_all("a", href=True):
         href = anchor["href"].strip()
-        parsed = urlparse(href)
-        path = parsed.path if parsed.scheme else href.split("?", 1)[0]
+        try:
+            full = validate_source_url(urljoin(HELLO_CATALOG, href), HELLO_HOSTS)
+        except ParseError:
+            continue
+        path = urlparse(full).path
         if not path.startswith("/cars/") or path.rstrip("/") == "/cars":
             continue
-        full = urljoin(HELLO_CATALOG, href)
         if full not in seen:
             seen.add(full)
             urls.append(full)
@@ -217,6 +263,7 @@ def scrape_hello(existing: list[dict]) -> tuple[list[dict], list[str]]:
 
 
 def parse_anytime_public_page(url: str, html: str) -> dict:
+    url = validate_source_url(url, ANYTIME_HOSTS)
     soup, text = clean_text(html)
     h1 = soup.find("h1")
     model = h1.get_text(" ", strip=True) if h1 else ""
@@ -273,10 +320,13 @@ def discover_anytime_urls(html: str) -> list[str]:
     seen = set()
     for anchor in soup.find_all("a", href=True):
         href = anchor["href"].strip()
-        path = urlparse(href).path if urlparse(href).scheme else href.split("?", 1)[0]
+        try:
+            full = validate_source_url(urljoin(ANYTIME_CATALOG, href), ANYTIME_HOSTS)
+        except ParseError:
+            continue
+        path = urlparse(full).path
         if "/carsharings/anytime/models/" not in path:
             continue
-        full = urljoin(ANYTIME_CATALOG, href)
         if full not in seen:
             seen.add(full)
             urls.append(full)

@@ -14,20 +14,36 @@
 
 ## Публикация сайта
 
-GitHub Actions автоматически собирает и публикует через GitHub Pages только два файла: `index.html` и `tariffs.json`. Веб-версия загружает актуальный JSON рядом с HTML.
+GitHub Actions публикует через GitHub Pages три файла: `index.html`, `app.js` и `tariffs.json`. Браузерный код вынесен в отдельный файл и ограничен Content Security Policy.
 
 Если первая публикация завершится ошибкой конфигурации Pages, открой `Settings → Pages → Build and deployment`, выбери источник `GitHub Actions` и повтори запуск workflow `Daily carsharing tariff check`.
 
 Открывай калькулятор по адресу GitHub Pages, а не двойным щелчком по локальному HTML. В режиме `file://` браузер блокирует загрузку соседнего JSON, поэтому калькулятор использует встроенную резервную базу.
 
+## Безопасность
+
+- `app.js` загружается с того же домена; inline JavaScript запрещён CSP.
+- Включены `default-src 'self'`, `script-src 'self'`, ограничения `connect-src` и Trusted Types.
+- Строки не вставляются в DOM через `innerHTML`; внешние ссылки проверяются по HTTPS и списку разрешённых доменов.
+- Сборщик тарифов не следует внешним перенаправлениям и принимает страницы только с доменов Hello и CarSync.
+- Python-пакеты фиксируются точными версиями и SHA-256 хешами; CI устанавливает только wheels и запускает `pip-audit`.
+- GitHub Actions закреплены по полным SHA. Проверка выполняется с `contents: read`; обновление тарифов и публикация сайта имеют отдельные минимальные права.
+- Автоматические тарифные изменения идут через PR, содержащий только `tariffs.json` и `data/anytime_watch.json`. Такой PR объединяется только после успешной проверки.
+
+Для защиты `main` дополнительно включи GitHub Ruleset по инструкции из `SECURITY.md`: обязательный PR, успешный статус `Validate`, запрет force-push и удаления ветки. Для личного аккаунта отдельно включи 2FA/Passkey и проверь активные сессии и SSH-ключи.
 ## Структура
 
-- `index.html` — калькулятор, формулы и резервные тарифы.
+- `index.html` — разметка калькулятора и Content Security Policy.
+- `app.js` — клиентская логика, формулы и резервные тарифы.
 - `tariffs.json` — внешняя база тарифов для опубликованной версии.
 - `scripts/update_tariffs.py` — сборщик Hello и мониторинг Anytime.
 - `data/anytime_manual.json` — подтверждённые ручные обновления Anytime.
 - `data/anytime_watch.json` — сигналы из публичного источника Anytime; не используется как тарифная база.
-- `tests/test_parsers.py` — тесты парсеров.
+- `tests/test_parsers.py` — тесты парсеров и защиты от SSRF.
+- `tests/test_security.py` — проверки CSP и отсутствия небезопасных HTML/JS sinks.
+- `requirements.txt` — точные версии Python-зависимостей и SHA-256 хеши wheels.
+- `requirements-audit.txt` — отдельный сканер уязвимостей для CI.
+- `.github/dependabot.yml` — еженедельные обновления зависимостей.
 - `.github/workflows/update-tariffs.yml` — расписание, проверки и публикация GitHub Pages.
 
 ## Ручное обновление Anytime
