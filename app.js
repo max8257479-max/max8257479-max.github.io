@@ -2795,7 +2795,7 @@ function helloOptions(v,t,distance,drive,stop,outerDrive,packageTime,packageKm,i
      const moveCost=outerDrive*v.move;
      const kmCharge=packageKm*v.km;
      const label='Минутный + абонемент '+p.label+' + минутный';
-     let mixDetail='Крайние участки по минутному тарифу: '+timeText(outerDrive)+' ('+fmt(moveCost)+' BYN) · Средняя часть по абонементу: '+timeText(packageTime)+' · Абонемент '+p.label+': '+fmt(p.price)+' BYN';
+     let mixDetail='Первый и последний участки по минутному тарифу: '+timeText(outerDrive)+' ('+fmt(moveCost)+' BYN) · Середина по абонементу: '+timeText(packageTime)+' · Абонемент '+p.label+': '+fmt(p.price)+' BYN';
      if(unused>0)mixDetail+=' · Неиспользованное время: '+timeText(unused)+' (включено в стоимость абонемента)';
      if(extra>0)mixDetail+=' · Сверх абонемента: '+timeText(extra)+' ('+fmt(over)+' BYN; движение и стоянка распределены пропорционально)';
      if(packageKm>0)mixDetail+=' · Пробег внутри абонемента: '+packageKm.toLocaleString('ru-RU')+' км × '+fmt(v.km)+' BYN/км = '+fmt(kmCharge)+' BYN';
@@ -2809,8 +2809,8 @@ const timeText=m=>[Math.floor(m/60)?`${Math.floor(m/60)} ч`:'',m%60?`${m%60} м
 const ROUTE_STATUS_DEFAULT='';
 let routeRequestId=0,routeInFlightUrl='',lastAppliedRouteLink='',lastRouteRequestAt=0;
 let routeInputTimer=null,routeImported=false,applyingRouteValues=false,routePointCount=0,routeLegCount=0,routePendingEditVersion=null,routeSourceLabel='',routeSpreadCount=0,routeProviderWarning='';
-const routeFieldManual={km:false,totalDrive:false,outerDrive:false,outerKm:false};
-const routeFieldEditVersion={km:0,totalDrive:0,outerDrive:0,outerKm:0};
+const routeFieldManual={km:false,totalDrive:false,firstDrive:false,firstKm:false,lastDrive:false,lastKm:false};
+const routeFieldEditVersion={km:0,totalDrive:0,firstDrive:0,firstKm:0,lastDrive:0,lastKm:0};
 let tripTimeManual=false;
 function readTimePair(prefix){return Math.round(safe($(prefix+'Hours').value)*60+safe($(prefix+'Minutes').value));}
 function writeTimePair(prefix,totalMinutes){
@@ -2853,20 +2853,26 @@ function summarizeRouteLegs(legs){
    if(!Number.isFinite(distance)||distance<0||!Number.isFinite(duration)||duration<0)throw new Error('Сервис вернул некорректные данные участка '+(index+1)+'.');
    return {distance,duration};
   });
+  const firstLeg=values[0];
+  const lastLeg=values.length>1?values[values.length-1]:{distance:0,duration:0};
   const totalDistanceMeters=values.reduce((sum,leg)=>sum+leg.distance,0);
   const totalDurationSeconds=values.reduce((sum,leg)=>sum+leg.duration,0);
-  const outerLegs=values.length===1?[values[0]]:[values[0],values[values.length-1]];
-  const outerDistanceMeters=outerLegs.reduce((sum,leg)=>sum+leg.distance,0);
-  const outerDurationSeconds=outerLegs.reduce((sum,leg)=>sum+leg.duration,0);
+  const firstKm=Math.round((firstLeg.distance+Number.EPSILON)/100)/10;
+  const lastKm=Math.round((lastLeg.distance+Number.EPSILON)/100)/10;
+  const outerDistanceMeters=firstLeg.distance+lastLeg.distance;
+  const outerDurationSeconds=firstLeg.duration+lastLeg.duration;
+  const outerKm=Math.round((firstKm+lastKm+Number.EPSILON)*10)/10;
   const packageDistanceMeters=Math.max(0,totalDistanceMeters-outerDistanceMeters);
   const totalKm=Math.round((totalDistanceMeters+Number.EPSILON)/100)/10;
-  const outerKm=Math.round((outerDistanceMeters+Number.EPSILON)/100)/10;
   const packageKm=Math.max(0,Math.round((totalKm-outerKm+Number.EPSILON)*10)/10);
+  const firstDriveMinutes=Math.round(firstLeg.duration/60);
+  const lastDriveMinutes=Math.round(lastLeg.duration/60);
   return {
    totalDistanceMeters,outerDistanceMeters,packageDistanceMeters,totalDurationSeconds,outerDurationSeconds,
-   totalKm,outerKm,packageKm,
+   totalKm,firstKm,lastKm,outerKm,packageKm,
    totalMinutes:Math.round(totalDurationSeconds/60),
-   outerDriveMinutes:Math.round(outerDurationSeconds/60)
+   firstDriveMinutes,lastDriveMinutes,
+   outerDriveMinutes:firstDriveMinutes+lastDriveMinutes
   };
  }
 function medianRouteValue(values){
@@ -2964,8 +2970,10 @@ function updateRouteFieldStatuses(){
   const fields=[
    ['km','kmStatus','Общий пробег'],
    ['totalDrive','driveTimeStatus','Суммарное время движения по маршруту'],
-   ['outerDrive','outerDriveStatus','Первый + последний участки'],
-   ['outerKm','outerKmStatus','Первый + последний участки']
+   ['firstDrive','firstDriveStatus','Время первого участка'],
+   ['firstKm','firstKmStatus','Километраж первого участка'],
+   ['lastDrive','lastDriveStatus','Время последнего участка'],
+   ['lastKm','lastKmStatus','Километраж последнего участка']
   ];
   for(const [key,id,defaultText] of fields){
    const node=$(id),manual=routeFieldManual[key];
@@ -2974,12 +2982,14 @@ function updateRouteFieldStatuses(){
    node.classList.toggle('imported',routeImported&&!manual);
   }
   const tripStatus=$('tripTimeStatus');
-  tripStatus.textContent=tripTimeManual?'Изменено вручную':'Автоматически: время за рулём + время на места';
+  tripStatus.textContent=tripTimeManual?'Изменено вручную':'Auto: время за рулём + места';
   tripStatus.classList.toggle('manual',tripTimeManual);
   tripStatus.classList.toggle('imported',!tripTimeManual);
   if(routeImported&&!routeInFlightUrl&&$('routeUrl').value.trim()===lastAppliedRouteLink){
    const changed=Object.entries(routeFieldManual).filter(([,value])=>value).map(([key])=>({
-    km:'километраж поездки',totalDrive:'время за рулём',outerDrive:'время крайних участков',outerKm:'километраж крайних участков'
+    km:'километраж поездки',totalDrive:'время за рулём',
+    firstDrive:'время первого участка',firstKm:'километраж первого участка',
+    lastDrive:'время последнего участка',lastKm:'километраж последнего участка'
    })[key]);
    const warnings=routeSpreadCount?' · Расхождения на '+routeSpreadCount+' участках':'';
    const failed=routeProviderWarning?' · Недоступны: '+routeProviderWarning:'';
@@ -3055,8 +3065,10 @@ async function calculateRouteFromYandexLink(force=false,editVersionAtLink=null){
   try{
    if(!changedDuringLoad.includes('km'))$('km').value=totals.totalKm.toFixed(1);
    if(!changedDuringLoad.includes('totalDrive'))writeTimePair('driveTime',totals.totalMinutes);
-   if(!changedDuringLoad.includes('outerDrive'))writeTimePair('outerDrive',totals.outerDriveMinutes);
-   if(!changedDuringLoad.includes('outerKm'))$('outerKm').value=totals.outerKm.toFixed(1);
+   if(!changedDuringLoad.includes('firstDrive'))writeTimePair('firstDrive',totals.firstDriveMinutes);
+   if(!changedDuringLoad.includes('firstKm'))$('firstKm').value=totals.firstKm.toFixed(1);
+   if(!changedDuringLoad.includes('lastDrive'))writeTimePair('lastDrive',totals.lastDriveMinutes);
+   if(!changedDuringLoad.includes('lastKm'))$('lastKm').value=totals.lastKm.toFixed(1);
   }finally{applyingRouteValues=false;}
   if(!tripTimeManual)syncTripTimeFromParts();
   Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=changedDuringLoad.includes(key));
@@ -3090,31 +3102,41 @@ function getTrip(){
  const drive=readTimePair('driveTime');
  const places=readTimePair('places');
  const t=readTimePair('trip');
- const outerDrive=readTimePair('outerDrive');
- const outerKm=safe($('outerKm').value);
+ const firstDrive=readTimePair('firstDrive');
+ const lastDrive=readTimePair('lastDrive');
+ const outerDrive=firstDrive+lastDrive;
+ const firstKm=safe($('firstKm').value);
+ const lastKm=safe($('lastKm').value);
+ const outerKm=Math.round((firstKm+lastKm+Number.EPSILON)*10)/10;
  const park=Math.max(0,t-drive);
  const packageTime=t-outerDrive;
- const packageKm=d-outerKm;
- return {d,t,drive,places,park,outerDrive,outerKm,packageTime,packageKm};
+ const packageKm=Math.round((d-outerKm+Number.EPSILON)*10)/10;
+ return {d,t,drive,places,park,firstDrive,lastDrive,firstKm,lastKm,outerDrive,outerKm,packageTime,packageKm};
 }
 function calcAll(){
-  const {d,t,drive,places,park,outerDrive,outerKm,packageTime,packageKm}=getTrip();
+  const {d,t,drive,places,park,firstDrive,lastDrive,firstKm,lastKm,outerDrive,outerKm,packageTime,packageKm}=getTrip();
   const warn=[];
   const valid=t>0&&drive<=t&&t>=drive+places;
   const outerTimeValid=outerDrive<=drive;
   const outerKmValid=outerKm<=d;
   const mixedValid=valid&&outerTimeValid&&outerKmValid&&outerDrive>0&&packageTime>0&&packageKm>=0;
+  const outerDriveOutput=$('outerDriveTotal');
+  outerDriveOutput.textContent=outerDrive>=0?timeText(outerDrive):'—';
+  outerDriveOutput.classList.toggle('invalid',outerDrive<0);
+  const outerKmOutput=$('outerKmTotal');
+  outerKmOutput.textContent=outerKm>=0?formatRouteKm(outerKm)+' км':'—';
+  outerKmOutput.classList.toggle('invalid',outerKm<0);
   const packageTimeOutput=$('packageTime');
   packageTimeOutput.textContent=packageTime>=0?timeText(packageTime):'—';
   packageTimeOutput.classList.toggle('invalid',packageTime<0);
   const packageKmOutput=$('packageKm');
   packageKmOutput.textContent=packageKm>=0?formatRouteKm(packageKm)+' км':'—';
   packageKmOutput.classList.toggle('invalid',packageKm<0);
-  for(const id of ['outerDriveHours','outerDriveMinutes'])$(id).classList.toggle('errorfield',!outerTimeValid);
-  $('outerKm').classList.toggle('errorfield',!outerKmValid);
+  for(const id of ['firstDriveHours','firstDriveMinutes','lastDriveHours','lastDriveMinutes'])$(id).classList.toggle('errorfield',!outerTimeValid);
+  for(const id of ['firstKm','lastKm'])$(id).classList.toggle('errorfield',!outerKmValid);
   const packageErrors=[];
-  if(!outerTimeValid)packageErrors.push('Время первого и последнего участков не может превышать время за рулём.');
-  if(!outerKmValid)packageErrors.push('Километраж первого и последнего участков не может превышать километраж поездки.');
+  if(!outerTimeValid)packageErrors.push('Суммарное время первого и последнего участков не может превышать время за рулём.');
+  if(!outerKmValid)packageErrors.push('Суммарный километраж первого и последнего участков не может превышать километраж поездки.');
   if(packageTime<0)packageErrors.push('Время для абонемента не может быть отрицательным.');
   if(packageKm<0)packageErrors.push('Километраж для абонемента не может быть отрицательным.');
   const packageError=$('helloPackageError');
@@ -3124,7 +3146,7 @@ function calcAll(){
   if(t<=0)warn.push('Укажи продолжительность поездки больше нуля.');
   if(t>2880&&provider!=='Hello')warn.push('Anytime: нет полного набора тарифов для аренды более 48 часов, поэтому этот сервис не участвует в сравнении.');
   if(d>0&&drive===0&&valid)warn.push('Указан пробег, но время за рулём равно нулю. Проверь параметры.');
-  if(!outerTimeValid||!outerKmValid)warn.push('Комбинированные тарифы Hello исключены: проверь время и километраж крайних участков.');
+  if(!outerTimeValid||!outerKmValid)warn.push('Комбинированные тарифы Hello исключены: проверь время и километраж первого и последнего участков.');
   if(t>drive+places)warn.push('Разница между общей длительностью и суммой движения/времени на местах учитывается как стоянка.');
 
  const results=[];
@@ -3234,7 +3256,7 @@ function calcAll(){
   holder.append(board);
  }
 }
-const routeInputGroups={km:'km',driveTimeHours:'totalDrive',driveTimeMinutes:'totalDrive',outerDriveHours:'outerDrive',outerDriveMinutes:'outerDrive',outerKm:'outerKm'};
+const routeInputGroups={km:'km',driveTimeHours:'totalDrive',driveTimeMinutes:'totalDrive',firstDriveHours:'firstDrive',firstDriveMinutes:'firstDrive',firstKm:'firstKm',lastDriveHours:'lastDrive',lastDriveMinutes:'lastDrive',lastKm:'lastKm'};
 for(const [id,key] of Object.entries(routeInputGroups))$(id).addEventListener('input',()=>{
  markRouteFieldManual(key);
  if(key==='totalDrive'){tripTimeManual=false;syncTripTimeFromParts();updateRouteFieldStatuses();}
@@ -3293,7 +3315,7 @@ $('routeUrl').addEventListener('input',()=>{
 for(const chip of document.querySelectorAll('[data-provider]'))chip.addEventListener('click',()=>{provider=chip.dataset.provider;document.querySelectorAll('[data-provider]').forEach(c=>c.classList.toggle('active',c===chip));calcAll();});
 $('reset').addEventListener('click',()=>{
  $('results').replaceChildren();
- for(const [id,v] of [['km','30'],['driveTimeHours','1'],['driveTimeMinutes','30'],['placesHours','0'],['placesMinutes','30'],['tripHours','2'],['tripMinutes','0'],['outerDriveHours','1'],['outerDriveMinutes','30'],['outerKm','30']])$(id).value=v;
+ for(const [id,v] of [['km','30'],['driveTimeHours','1'],['driveTimeMinutes','30'],['placesHours','0'],['placesMinutes','30'],['tripHours','2'],['tripMinutes','0'],['firstDriveHours','0'],['firstDriveMinutes','45'],['firstKm','15'],['lastDriveHours','0'],['lastDriveMinutes','45'],['lastKm','15']])$(id).value=v;
  tripTimeManual=false;syncTripTimeFromParts();
  $('routeUrl').value='';
  if(routeInputTimer)clearTimeout(routeInputTimer);

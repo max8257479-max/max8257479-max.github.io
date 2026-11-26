@@ -111,26 +111,28 @@ console.log(JSON.stringify({{points,counts,totals,oneLeg}}));
     assert data["oneLeg"]["packageKm"] == 0
 
 
-def test_route_import_updates_new_inputs_and_keeps_manual_edits_independent():
+def test_route_import_updates_first_and_last_legs_and_keeps_manual_edits_independent():
     app = (ROOT / "app.js").read_text(encoding="utf-8")
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "$('km').value=totals.totalKm.toFixed(1)" in app
     assert "writeTimePair('driveTime',totals.totalMinutes)" in app
-    assert "writeTimePair('outerDrive',totals.outerDriveMinutes)" in app
-    assert "$('outerKm').value=totals.outerKm.toFixed(1)" in app
-    for key in ("km", "totalDrive", "outerDrive", "outerKm"):
+    assert "writeTimePair('firstDrive',totals.firstDriveMinutes)" in app
+    assert "$('firstKm').value=totals.firstKm.toFixed(1)" in app
+    assert "writeTimePair('lastDrive',totals.lastDriveMinutes)" in app
+    assert "$('lastKm').value=totals.lastKm.toFixed(1)" in app
+    for key in ("km", "totalDrive", "firstDrive", "firstKm", "lastDrive", "lastKm"):
         assert f"{key}:false" in app
+        assert f"changedDuringLoad.includes('{key}')" in app
     assert "function syncTripTimeFromParts()" in app
     assert "tripTimeManual=true" in app
     assert "tripTimeManual=false" in app
-    assert "changedDuringLoad.includes('totalDrive')" in app
-    assert "changedDuringLoad.includes('outerDrive')" in app
-    assert "changedDuringLoad.includes('outerKm')" in app
-    assert "if(!tripTimeManual)syncTripTimeFromParts()" in app
     assert "packageTime=t-outerDrive" in app
-    assert "packageKm=d-outerKm" in app
+    assert "packageKm=Math.round((d-outerKm+Number.EPSILON)*10)/10" in app
+    assert "outerDrive=firstDrive+lastDrive" in app
+    assert "outerKm=Math.round((firstKm+lastKm+Number.EPSILON)*10)/10" in app
     assert "anytimeOptions(v,t,d,drive,park,true)" in app
     assert "helloOptions(v,t,d,drive,park,outerDrive,packageTime,packageKm,mixedValid)" in app
+    assert "Auto: время за рулём + места" in app
     assert "Маршрут загружен" in app
     assert "Сравниваю три бесплатных маршрутизатора" in app
     assert "Изменено вручную" in app
@@ -140,17 +142,54 @@ def test_route_import_updates_new_inputs_and_keeps_manual_edits_independent():
     assert 'id="km"' in html and "Километраж поездки" in html
     assert "Время на места" in html
     assert "Время всей поездки" in html
-    assert "Время первого и последнего участков" in html
-    assert 'id="outerKm"' in html
+    assert "Первый участок" in html and 'id="firstKm"' in html
+    assert "Последний участок" in html and 'id="lastKm"' in html
+    assert 'id="outerDriveTotal"' in html and 'id="outerKmTotal"' in html
     assert "Время для абонемента" in html and 'id="packageTime"' in html
     assert "Км для абонемента" in html and 'id="packageKm"' in html
-    assert "helloPackageKm" not in app and "helloPackageKm" not in html
+    assert "Первый и последний участки — минутный тариф, середина — абонемент ч+км" in html
+    assert 'class="field timefield trip-total-time-field"' in html
+    assert "Автоматически: время за рулём + время на места" not in html
+    assert "outerDriveHours" not in app and "outerDriveHours" not in html
+    assert 'id="outerKm"' not in html
     route_logic = app[app.index("function parseYandexRouteLink"):app.index("// Existing bonus percentage")]
     assert "gapMeters" not in route_logic
     assert "distanceSpread>Math.max(5000" in route_logic
 
 
-def test_hello_mixed_tariff_uses_middle_time_and_distance_and_prices_overage():
+def test_summarize_route_legs_separates_first_and_last_segments():
+    app = (ROOT / "app.js").read_text(encoding="utf-8")
+    start = app.index("function summarizeRouteLegs(")
+    end = app.index("function medianRouteValue(", start)
+    helper = app[start:end]
+    script = f"""
+{helper}
+const multi=summarizeRouteLegs([
+ {{distance:12500,duration:600}},
+ {{distance:20000,duration:1200}},
+ {{distance:7500,duration:300}}
+]);
+const one=summarizeRouteLegs([{{distance:12345,duration:678}}]);
+console.log(JSON.stringify({{multi,one}}));
+"""
+    result = subprocess.run(["node", "-e", script], check=True, capture_output=True, text=True)
+    data = json.loads(result.stdout)
+    assert data["multi"]["firstKm"] == 12.5
+    assert data["multi"]["lastKm"] == 7.5
+    assert data["multi"]["outerKm"] == 20.0
+    assert data["multi"]["firstDriveMinutes"] == 10
+    assert data["multi"]["lastDriveMinutes"] == 5
+    assert data["multi"]["outerDriveMinutes"] == 15
+    assert data["multi"]["packageKm"] == 20.0
+    assert data["one"]["firstKm"] == 12.3
+    assert data["one"]["lastKm"] == 0
+    assert data["one"]["outerKm"] == 12.3
+    assert data["one"]["firstDriveMinutes"] == 11
+    assert data["one"]["lastDriveMinutes"] == 0
+    assert data["one"]["outerDriveMinutes"] == 11
+
+
+def test_hello_mixed_tariff_uses_summed_first_last_segments_and_middle_time_distance():
     app = (ROOT / "app.js").read_text(encoding="utf-8")
     start = app.index("function helloOptions(")
     end = app.index("const timeText=", start)
