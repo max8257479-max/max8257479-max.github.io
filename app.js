@@ -165,6 +165,9 @@ let VEHICLES=[
    }
   },
   "specialKm": 0.45,
+  "specialKmRates": {
+   "24h": 0.47
+  },
   "specialExcessDrive": 0.18,
   "specialExcessPark": 0.19,
   "day0": 58.32,
@@ -541,6 +544,9 @@ let VEHICLES=[
    }
   },
   "specialKm": 0.51,
+  "specialKmRates": {
+   "24h": 0.55
+  },
   "specialExcessDrive": 0.2,
   "specialExcessPark": 0.19,
   "day0": 64.8,
@@ -2741,12 +2747,13 @@ function anytimeOptions(v,t,distance,drive,stop,includeApprox){
  if(t>2880) return []; // other 2–5 day options were not observable; avoid confidently wrong recommendations
  let options=[];
  if(distance===0) options.push({label:'Минутный',cost:round2(drive*v.move+stop*v.park),status:'подтверждено',base:drive*v.move+stop*v.park,kmCharge:0,over:0,extraKm:0});
- for(const s of Object.values(v.specials)){
+ for(const [specialKey,s] of Object.entries(v.specials)){
   const extra=Math.max(0,t-s.minutes);
   const afterDrive=drive+stop>0?extra*drive/(drive+stop):0, afterPark=extra-afterDrive;
   const over=afterDrive*v.specialExcessDrive+afterPark*v.specialExcessPark;
-  const kmCharge=distance*v.specialKm;
-  const estimated=!!v.specialRatesEstimated;
+  const specialKmRate=Number.isFinite(v.specialKmRates?.[specialKey])?v.specialKmRates[specialKey]:v.specialKm;
+  const kmCharge=distance*specialKmRate;
+  const estimated=v.specialKmRates?.[specialKey]===undefined?!!v.specialRatesEstimated:false;
   options.push({label:s.label,cap:s.minutes,quota:0,cost:round2(s.price+kmCharge+over),status:extra>0?'оценка перерасхода':estimated?'ориентировочно':'подтверждено',base:s.price,kmCharge,over,extraKm:0,notes:extra>0?'Превышение времени распределено пропорционально':estimated?'Ставка километра для этого пакета оценочная':null});
  }
  for(const [hours,quotas] of Object.entries(v.hourKms)){
