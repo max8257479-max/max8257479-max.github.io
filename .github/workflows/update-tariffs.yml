@@ -10,6 +10,11 @@ on:
         description: "Internal: PR number to validate and merge"
         required: false
         type: string
+      deploy_only:
+        description: "Deploy GitHub Pages only (use after repository rename)"
+        required: false
+        default: false
+        type: boolean
   push:
     branches: [main]
     paths:
@@ -113,7 +118,7 @@ jobs:
 
   update:
     name: Update tariff data
-    if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && inputs.tariff_pr_number == ''
+    if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && inputs.tariff_pr_number == '' && inputs.deploy_only != true
     needs: validate
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -223,7 +228,7 @@ jobs:
 
   deploy:
     name: Deploy GitHub Pages
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy_only == true)
     needs: validate
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -247,8 +252,23 @@ jobs:
 
       - name: Prepare website
         run: |
-          mkdir -p site
+          mkdir -p site/anytime-hello-calculator
           cp index.html app.js tariffs.json site/
+          cat > site/anytime-hello-calculator/index.html <<'EOF'
+          <!doctype html>
+          <html lang="ru">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta http-equiv="refresh" content="0; url=/">
+            <link rel="canonical" href="/">
+            <title>Калькулятор переехал</title>
+          </head>
+          <body>
+            <p>Калькулятор переехал. <a href="/">Открыть актуальную версию</a>.</p>
+          </body>
+          </html>
+          EOF
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
