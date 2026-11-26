@@ -7,7 +7,7 @@
     {
       "model": "Belgee S50",
       "url": "https://carsync.by/carsharings/anytime/models/belgee-s50",
-      "move": 0.34,
+      "move": 0.35,
       "park": 0.19,
       "specials": {
         "2h": 8.99,
@@ -18,7 +18,7 @@
       "comparison": {
         "move": {
           "calculator": 0.38,
-          "public_source": 0.34,
+          "public_source": 0.35,
           "differs": true
         },
         "park": {
@@ -46,8 +46,8 @@
     {
       "model": "Belgee X50",
       "url": "https://carsync.by/carsharings/anytime/models/belgee-x50-2",
-      "move": 0.43,
-      "park": 0.19,
+      "move": 0.24,
+      "park": 0.59,
       "specials": {
         "2h": 9.99,
         "24h": 33.5,
@@ -57,13 +57,13 @@
       "comparison": {
         "move": {
           "calculator": 0.43,
-          "public_source": 0.43,
-          "differs": false
+          "public_source": 0.24,
+          "differs": true
         },
         "park": {
           "calculator": 0.19,
-          "public_source": 0.19,
-          "differs": false
+          "public_source": 0.59,
+          "differs": true
         },
         "specials.2h.price": {
           "calculator": 9.99,
@@ -85,8 +85,8 @@
     {
       "model": "Haval Jolion Black edition",
       "url": "https://carsync.by/carsharings/anytime/models/haval-jolion-black-edition",
-      "move": 0.4,
-      "park": 0.19,
+      "move": 0.23,
+      "park": 0.59,
       "specials": {
         "2h": 9.99,
         "24h": 33.5,
@@ -96,13 +96,13 @@
       "comparison": {
         "move": {
           "calculator": 0.4,
-          "public_source": 0.4,
-          "differs": false
+          "public_source": 0.23,
+          "differs": true
         },
         "park": {
           "calculator": 0.19,
-          "public_source": 0.19,
-          "differs": false
+          "public_source": 0.59,
+          "differs": true
         },
         "specials.2h.price": {
           "calculator": 9.99,
@@ -124,8 +124,8 @@
     {
       "model": "Volkswagen Polo",
       "url": "https://carsync.by/carsharings/anytime/models/volkswagen-polo",
-      "move": 0.33,
-      "park": 0.17,
+      "move": 0.19,
+      "park": 0.45,
       "specials": {
         "2h": 7.99,
         "24h": 28.5,
@@ -135,13 +135,13 @@
       "comparison": {
         "move": {
           "calculator": 0.33,
-          "public_source": 0.33,
-          "differs": false
+          "public_source": 0.19,
+          "differs": true
         },
         "park": {
           "calculator": 0.17,
-          "public_source": 0.17,
-          "differs": false
+          "public_source": 0.45,
+          "differs": true
         },
         "specials.2h.price": {
           "calculator": 7.99,
@@ -166,6 +166,21 @@
       "model": "Belgee S50",
       "reason": "Расхождение со снимком приложения; нужна ручная проверка",
       "url": "https://carsync.by/carsharings/anytime/models/belgee-s50"
+    },
+    {
+      "model": "Belgee X50",
+      "reason": "Расхождение со снимком приложения; нужна ручная проверка",
+      "url": "https://carsync.by/carsharings/anytime/models/belgee-x50-2"
+    },
+    {
+      "model": "Haval Jolion Black edition",
+      "reason": "Расхождение со снимком приложения; нужна ручная проверка",
+      "url": "https://carsync.by/carsharings/anytime/models/haval-jolion-black-edition"
+    },
+    {
+      "model": "Volkswagen Polo",
+      "reason": "Расхождение со снимком приложения; нужна ручная проверка",
+      "url": "https://carsync.by/carsharings/anytime/models/volkswagen-polo"
     }
   ]
 }
