@@ -3129,12 +3129,16 @@ function calcAll(){
   const packageTimeOutput=$('packageTime');
   packageTimeOutput.textContent=packageTime>=0?timeText(packageTime):'—';
   packageTimeOutput.classList.toggle('invalid',packageTime<0);
+  const packageKmOutput=$('packageKm');
+  packageKmOutput.textContent=packageKm>=0?formatRouteKm(packageKm)+' км':'—';
+  packageKmOutput.classList.toggle('invalid',packageKm<0);
   for(const id of ['firstDriveHours','firstDriveMinutes','lastDriveHours','lastDriveMinutes'])$(id).classList.toggle('errorfield',!outerTimeValid);
   for(const id of ['firstKm','lastKm'])$(id).classList.toggle('errorfield',!outerKmValid);
   const packageErrors=[];
   if(!outerTimeValid)packageErrors.push('Суммарное время первого и последнего участков не может превышать время за рулём.');
   if(!outerKmValid)packageErrors.push('Суммарный километраж первого и последнего участков не может превышать километраж поездки.');
   if(packageTime<0)packageErrors.push('Время для абонемента не может быть отрицательным.');
+  if(packageKm<0)packageErrors.push('Километраж для абонемента не может быть отрицательным.');
   const packageError=$('helloPackageError');
   packageError.hidden=packageErrors.length===0;
   packageError.textContent=packageErrors.join(' ');
