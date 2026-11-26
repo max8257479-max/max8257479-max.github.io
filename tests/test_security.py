@@ -126,7 +126,7 @@ def test_route_import_updates_all_four_inputs_and_keeps_manual_edits_independent
     assert "routeInputTimer=setTimeout" in app
     assert "calculateRouteFromYandexLink(true,snapshot)" in app
     assert "Маршрут загружен" in app
-    assert "Загружаем маршрут" in app
+    assert "Сравниваю три бесплатных маршрутизатора" in app
     assert "Изменено вручную" in app
     assert "Не удалось получить данные маршрута" in app
     assert 'id="routeCalculate" type="button">Обновить по ссылке</button>' in html
@@ -134,4 +134,66 @@ def test_route_import_updates_all_four_inputs_and_keeps_manual_edits_independent
     assert 'id="routeDetails"' in html
     route_logic = app[app.index("function parseYandexRouteLink"):app.index("// Existing bonus percentage")]
     assert "gapMeters" not in route_logic
-    assert "500" not in route_logic
+    assert "distanceSpread>Math.max(5000" in route_logic
+
+
+def test_three_engine_route_consensus_uses_per_leg_median_and_flags_disagreement():
+    app = (ROOT / "app.js").read_text(encoding="utf-8")
+    start = app.index("function medianRouteValue(values){")
+    end = app.index("function formatRouteKm(value){", start)
+    helpers = app[start:end]
+    script = f"""
+{helpers}
+const results = {{
+  osrm: {{legs:[
+    {{distance:76666.9,duration:4779.4}},
+    {{distance:70758.4,duration:5742.6}},
+    {{distance:40397.6,duration:2432}},
+    {{distance:77820.7,duration:5167.1}},
+    {{distance:192457.9,duration:8339.5}}
+  ]}},
+  valhalla: {{legs:[
+    {{distance:76461,duration:5848.342}},
+    {{distance:66202,duration:5498.93}},
+    {{distance:40336,duration:2483.209}},
+    {{distance:103366,duration:6045.259}},
+    {{distance:192218,duration:8965.836}}
+  ]}},
+  brouter: {{legs:[
+    {{distance:64542,duration:3240}},
+    {{distance:60140,duration:2940}},
+    {{distance:40364,duration:2160}},
+    {{distance:103560,duration:5400}},
+    {{distance:192460,duration:8760}}
+  ]}}
+}};
+const result = combineRouteEngineResults(results, 5);
+console.log(JSON.stringify({{
+  names: result.names,
+  distances: result.legs.map(leg => leg.distance),
+  durations: result.legs.map(leg => leg.duration),
+  warnings: result.comparisons.map(item => item.warning),
+  spreads: result.comparisons.map(item => item.distanceSpread)
+}}));
+"""
+    result = subprocess.run(["node", "-e", script], check=True, capture_output=True, text=True)
+    data = json.loads(result.stdout)
+    assert data["names"] == ["osrm", "valhalla", "brouter"]
+    assert data["distances"] == [76461, 66202, 40364, 103366, 192457.9]
+    assert data["durations"] == [4779.4, 5498.93, 2432, 5400, 8760]
+    assert data["warnings"] == [True, True, False, True, False]
+    assert data["spreads"][3] > 25000
+
+
+def test_route_import_uses_three_free_public_engines_without_api_keys():
+    app = (ROOT / "app.js").read_text(encoding="utf-8")
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "https://router.project-osrm.org/route/v1/driving/" in app
+    assert "https://valhalla1.openstreetmap.de/route" in app
+    assert "X-Client-Id':'max8257479-max.github.io'" in app
+    assert "https://brouter.de/brouter?" in app
+    assert "profile:'car-eco'" in app
+    assert "Math.max(5000,distance*0.10)" in app
+    assert "Сравниваю три бесплатных маршрутизатора" in app
+    assert "Сверка трёх бесплатных маршрутизаторов" in html
+    assert "медиана результатов" in html
