@@ -139,11 +139,17 @@ def test_route_import_updates_first_and_last_legs_and_keeps_manual_edits_indepen
     assert 'id="routeCalculate" type="button">Обновить по ссылке</button>' in html
     assert 'id="routeDetails"' in html
     assert 'id="driveTimeHours"' in html and "Время за рулём" in html
-    assert 'id="km"' in html and "Километраж поездки" in html
+    assert 'id="km"' in html and '<label for="km">Км</label>' in html
+    assert "Километраж поездки" not in html
     assert "Время на места" in html
     assert "Время всей поездки" in html
     assert "Первый участок" in html and 'id="firstKm"' in html
+    assert '<label for="firstKm">Км</label>' in html
+    assert "Км первого участка" in html
+    assert "Километраж" not in html
     assert "Последний участок" in html and 'id="lastKm"' in html
+    assert '<label for="lastKm">Км</label>' in html
+    assert "Км последнего участка" in html
     assert 'id="outerDriveTotal"' in html and 'id="outerKmTotal"' in html
     assert 'label for="packageTime">Время</label>' in html and 'id="packageTime"' in html
     assert 'label for="packageKm">Км</label>' in html and 'id="packageKm"' in html
