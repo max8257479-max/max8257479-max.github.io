@@ -11,7 +11,7 @@ def test_frontend_uses_external_script_and_strict_content_security_policy():
     assert '<script src="./app.js" defer></script>' in html
     assert re.search(r"<script(?![^>]*\bsrc=)[^>]*>", html, re.I) is None
     assert "script-src 'self'" in html
-    assert "connect-src 'self' https://router.project-osrm.org" in html
+    assert "connect-src 'self' https://router.project-osrm.org https://valhalla1.openstreetmap.de https://brouter.de" in html
     assert "require-trusted-types-for 'script'" in html
     assert 'name="referrer" content="no-referrer"' in html
 
@@ -105,36 +105,77 @@ console.log(JSON.stringify({{points,counts,totals,oneLeg}}));
     assert data["totals"]["packageKm"] == 9.0
     assert data["totals"]["totalMinutes"] == 15
     assert data["totals"]["outerDriveMinutes"] == 6
+    assert data["totals"]["outerKm"] == 6.0
     assert data["oneLeg"]["outerDriveMinutes"] == 2
+    assert data["oneLeg"]["outerKm"] == 1.2
     assert data["oneLeg"]["packageKm"] == 0
 
 
-def test_route_import_updates_all_four_inputs_and_keeps_manual_edits_independent():
+def test_route_import_updates_new_inputs_and_keeps_manual_edits_independent():
     app = (ROOT / "app.js").read_text(encoding="utf-8")
     html = (ROOT / "index.html").read_text(encoding="utf-8")
-    for field in ("km", "hours", "minutes", "driveHours", "driveMinutes", "helloPackageKm"):
-        assert f"$('{field}').value=" in app
-    for key in ("km", "rentalTime", "outerDrive", "packageKm"):
+    assert "$('km').value=totals.totalKm.toFixed(1)" in app
+    assert "writeTimePair('driveTime',totals.totalMinutes)" in app
+    assert "writeTimePair('outerDrive',totals.outerDriveMinutes)" in app
+    assert "$('outerKm').value=totals.outerKm.toFixed(1)" in app
+    for key in ("km", "totalDrive", "outerDrive", "outerKm"):
         assert f"{key}:false" in app
-    assert "markRouteFieldManual(key);calcAll();" in app
-    assert "Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=false);" in app
-    assert "routeFieldEditVersion[key]++" in app
-    assert "changedDuringLoad.includes('km')" in app
-    assert "changedDuringLoad.includes('rentalTime')" in app
+    assert "function syncTripTimeFromParts()" in app
+    assert "tripTimeManual=true" in app
+    assert "tripTimeManual=false" in app
+    assert "changedDuringLoad.includes('totalDrive')" in app
     assert "changedDuringLoad.includes('outerDrive')" in app
-    assert "changedDuringLoad.includes('packageKm')" in app
-    assert "routeInputTimer=setTimeout" in app
-    assert "calculateRouteFromYandexLink(true,snapshot)" in app
+    assert "changedDuringLoad.includes('outerKm')" in app
+    assert "if(!tripTimeManual)syncTripTimeFromParts()" in app
+    assert "packageTime=t-outerDrive" in app
+    assert "packageKm=d-outerKm" in app
+    assert "anytimeOptions(v,t,d,drive,park,true)" in app
+    assert "helloOptions(v,t,d,drive,park,outerDrive,packageTime,packageKm,mixedValid)" in app
     assert "Маршрут загружен" in app
     assert "Сравниваю три бесплатных маршрутизатора" in app
     assert "Изменено вручную" in app
-    assert "Не удалось получить данные маршрута" in app
     assert 'id="routeCalculate" type="button">Обновить по ссылке</button>' in html
-    assert 'id="parking"' in html and "Время на остановках" in html
     assert 'id="routeDetails"' in html
+    assert 'id="driveTimeHours"' in html and "Время за рулём" in html
+    assert 'id="km"' in html and "Километраж поездки" in html
+    assert "Время на места" in html
+    assert "Время всей поездки" in html
+    assert "Время первого и последнего участков" in html
+    assert 'id="outerKm"' in html
+    assert "Время для абонемента" in html and 'id="packageTime"' in html
+    assert "Км для абонемента" in html and 'id="packageKm"' in html
+    assert "helloPackageKm" not in app and "helloPackageKm" not in html
     route_logic = app[app.index("function parseYandexRouteLink"):app.index("// Existing bonus percentage")]
     assert "gapMeters" not in route_logic
     assert "distanceSpread>Math.max(5000" in route_logic
+
+
+def test_hello_mixed_tariff_uses_middle_time_and_distance_and_prices_overage():
+    app = (ROOT / "app.js").read_text(encoding="utf-8")
+    start = app.index("function helloOptions(")
+    end = app.index("const timeText=", start)
+    helper = app[start:end]
+    script = f"""
+const round2=n=>Math.round((n+Number.EPSILON)*100)/100;
+const fmt=n=>Number(n).toFixed(2);
+const timeText=m=>[Math.floor(m/60)?Math.floor(m/60)+' ч':'',m%60?m%60+' мин':''].filter(Boolean).join(' ')||'0 ч';
+{helper}
+const vehicle={{move:0.37,park:0.17,km:0.53,packages:[
+  {{minutes:180,price:19,label:'3 ч.'}},
+  {{minutes:360,price:29,label:'6 ч.'}},
+  {{minutes:540,price:39,label:'9 ч.'}}
+]}};
+const options=helloOptions(vehicle,240,100,180,60,30,210,80,true).filter(o=>o.mixed);
+console.log(JSON.stringify(options.map(o=>({{minutes:o.packageTime,km:o.packageKm,extra:o.extra,cost:o.cost,over:o.over}}))));
+"""
+    result = subprocess.run(["node", "-e", script], check=True, capture_output=True, text=True)
+    data = json.loads(result.stdout)
+    assert [item["minutes"] for item in data] == [210, 210, 210]
+    assert [item["km"] for item in data] == [80, 80, 80]
+    assert data[0]["extra"] == 30
+    assert data[0]["over"] > 0
+    assert data[0]["cost"] == 81.89
+    assert data[1]["extra"] == 0
 
 
 def test_three_engine_route_consensus_uses_per_leg_median_and_flags_disagreement():

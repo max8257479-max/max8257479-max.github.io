@@ -2737,13 +2737,13 @@ async function initTariffs(){
 }
 let provider='all';
 const hoursRates=(v,km)=>km<=0?0: v.hourKmRate[Math.min(4,km)];
-function anytimeOptions(v,t,distance,stop,includeApprox){
+function anytimeOptions(v,t,distance,drive,stop,includeApprox){
  if(t>2880) return []; // other 2–5 day options were not observable; avoid confidently wrong recommendations
- let drive=t-stop, options=[];
+ let options=[];
  if(distance===0) options.push({label:'Минутный',cost:round2(drive*v.move+stop*v.park),status:'подтверждено',base:drive*v.move+stop*v.park,kmCharge:0,over:0,extraKm:0});
  for(const s of Object.values(v.specials)){
   const extra=Math.max(0,t-s.minutes);
-  const afterDrive=t>0?extra*drive/t:0, afterPark=extra-afterDrive;
+  const afterDrive=drive+stop>0?extra*drive/(drive+stop):0, afterPark=extra-afterDrive;
   const over=afterDrive*v.specialExcessDrive+afterPark*v.specialExcessPark;
   const kmCharge=distance*v.specialKm;
   const estimated=!!v.specialRatesEstimated;
@@ -2753,7 +2753,7 @@ function anytimeOptions(v,t,distance,stop,includeApprox){
   const h=Number(hours),cap=h*60,base=v.hourBases[hours];
   for(const [idx,quota] of quotas.entries()){
     const extraTime=Math.max(0,t-cap);
-    const extraDrive=t>0?extraTime*drive/t:0,extraPark=extraTime-extraDrive;
+    const extraDrive=drive+stop>0?extraTime*drive/(drive+stop):0,extraPark=extraTime-extraDrive;
     const over=extraDrive*v.customExcessMin+extraPark*v.park;
     const unit=idx===0?0:v.hourKmRate[Math.min(idx,4)];
     const prepay=quota*unit, extraKm=Math.max(0,distance-quota), kmCharge=prepay+extraKm*v.customExcessKm;
@@ -2767,7 +2767,7 @@ function anytimeOptions(v,t,distance,stop,includeApprox){
  for(const quota of v.dayKms){
   const base=v.dayExact[String(quota)];
   const extraKm=Math.max(0,distance-quota),extraTime=Math.max(0,t-1440);
-  const afterDrive=t>0?extraTime*drive/t:0, afterPark=extraTime-afterDrive;
+  const afterDrive=drive+stop>0?extraTime*drive/(drive+stop):0, afterPark=extraTime-afterDrive;
   const over=afterDrive*v.customExcessMin+afterPark*v.park;
   const observed=Array.isArray(v.dayObservedKms)&&v.dayObservedKms.includes(quota);
   const estimated=!!v.dayRatesEstimated&&!observed;
@@ -2776,34 +2776,55 @@ function anytimeOptions(v,t,distance,stop,includeApprox){
  }
  return includeApprox?options:options.filter(p=>p.status==='подтверждено');
 }
-function helloOptions(v,t,distance,stop,includeMixed=true,packageKm=0){
-  const drive=t-stop;
-  let options=[{label:'Минутный тариф',cost:round2(drive*v.move+stop*v.park),status:'подтверждено',base:drive*v.move+stop*v.park,kmCharge:0,over:0}];
-  for(const p of v.packages){
-   if(p.minutes<t)continue; // no invented extrapolation rule
-   options.push({label:'Абонемент · '+p.label,cap:p.minutes,cost:round2(p.price+distance*v.km),base:p.price,kmCharge:distance*v.km,over:0,status:'подтверждено'});
-  }
-  if(includeMixed&&drive>0&&stop>0){
-   for(const p of v.packages.filter(p=>[180,360,540].includes(p.minutes)&&p.minutes>=stop)){
-    const unused=p.minutes-stop;
-    const moveCost=drive*v.move;
-    const kmCharge=packageKm*v.km;
-    const label='Минутный + абонемент '+p.label+' + минутный';
-    let mixDetail='Крайние участки по минутному тарифу: '+timeText(drive)+' ('+fmt(moveCost)+' BYN) · Центральная часть маршрута по абонементу: '+timeText(stop)+' · Абонемент '+p.label+': '+fmt(p.price)+' BYN';
-    if(unused>0)mixDetail+=' · Неиспользованное время: '+timeText(unused)+' (включено в стоимость абонемента)';
-    if(packageKm>0)mixDetail+=' · Пробег внутри абонемента: '+packageKm.toLocaleString('ru-RU')+' км × '+fmt(v.km)+' BYN/км = '+fmt(kmCharge)+' BYN';
-    options.push({label,cost:round2(moveCost+p.price+kmCharge),base:round2(moveCost+p.price),kmCharge,over:0,status:'условный сценарий',mixed:true,mixDetail,packageKm,outerDrive:drive,packageTime:stop,unused,estimated:false});
+function helloOptions(v,t,distance,drive,stop,outerDrive,packageTime,packageKm,includeMixed=true){
+   const minuteCost=drive*v.move+stop*v.park;
+   let options=[{label:'Минутный тариф',cost:round2(minuteCost),status:'подтверждено',base:minuteCost,kmCharge:0,over:0}];
+   for(const p of v.packages){
+    if(p.minutes<t)continue;
+    options.push({label:'Абонемент · '+p.label,cap:p.minutes,cost:round2(p.price+distance*v.km),base:p.price,kmCharge:distance*v.km,over:0,status:'подтверждено'});
    }
+   if(includeMixed&&outerDrive>0&&packageTime>0&&packageKm>=0){
+    const middleDrive=Math.max(0,drive-outerDrive);
+    const packageBaseTime=middleDrive+stop;
+    for(const p of v.packages.filter(p=>[180,360,540].includes(p.minutes))){
+     const extra=Math.max(0,packageTime-p.minutes);
+     const extraDrive=packageBaseTime>0?extra*middleDrive/packageBaseTime:0;
+     const extraPark=extra-extraDrive;
+     const over=extraDrive*v.move+extraPark*v.park;
+     const unused=Math.max(0,p.minutes-packageTime);
+     const moveCost=outerDrive*v.move;
+     const kmCharge=packageKm*v.km;
+     const label='Минутный + абонемент '+p.label+' + минутный';
+     let mixDetail='Крайние участки по минутному тарифу: '+timeText(outerDrive)+' ('+fmt(moveCost)+' BYN) · Средняя часть по абонементу: '+timeText(packageTime)+' · Абонемент '+p.label+': '+fmt(p.price)+' BYN';
+     if(unused>0)mixDetail+=' · Неиспользованное время: '+timeText(unused)+' (включено в стоимость абонемента)';
+     if(extra>0)mixDetail+=' · Сверх абонемента: '+timeText(extra)+' ('+fmt(over)+' BYN; движение и стоянка распределены пропорционально)';
+     if(packageKm>0)mixDetail+=' · Пробег внутри абонемента: '+packageKm.toLocaleString('ru-RU')+' км × '+fmt(v.km)+' BYN/км = '+fmt(kmCharge)+' BYN';
+     options.push({label,cost:round2(moveCost+p.price+kmCharge+over),base:round2(moveCost+p.price),kmCharge,over,status:'условный сценарий',mixed:true,mixDetail,packageKm,outerDrive,packageTime,unused,extra,estimated:extra>0});
+    }
+   }
+   return options;
   }
-  return options;
-}
 const timeText=m=>[Math.floor(m/60)?`${Math.floor(m/60)} ч`:'',m%60?`${m%60} мин`:''].filter(Boolean).join(' ')||'0 ч';
 
 const ROUTE_STATUS_DEFAULT='';
 let routeRequestId=0,routeInFlightUrl='',lastAppliedRouteLink='',lastRouteRequestAt=0;
 let routeInputTimer=null,routeImported=false,applyingRouteValues=false,routePointCount=0,routeLegCount=0,routePendingEditVersion=null,routeSourceLabel='',routeSpreadCount=0,routeProviderWarning='';
-const routeFieldManual={km:false,rentalTime:false,outerDrive:false,packageKm:false};
-const routeFieldEditVersion={km:0,rentalTime:0,outerDrive:0,packageKm:0};
+const routeFieldManual={km:false,totalDrive:false,outerDrive:false,outerKm:false};
+const routeFieldEditVersion={km:0,totalDrive:0,outerDrive:0,outerKm:0};
+let tripTimeManual=false;
+function readTimePair(prefix){return Math.round(safe($(prefix+'Hours').value)*60+safe($(prefix+'Minutes').value));}
+function writeTimePair(prefix,totalMinutes){
+ const value=Math.max(0,Math.round(Number(totalMinutes)||0));
+ $(prefix+'Hours').value=String(Math.floor(value/60));
+ $(prefix+'Minutes').value=String(value%60);
+}
+function syncTripTimeFromParts(){
+ if(tripTimeManual)return;
+ const wasApplying=applyingRouteValues;
+ applyingRouteValues=true;
+ writeTimePair('trip',readTimePair('driveTime')+readTimePair('places'));
+ applyingRouteValues=wasApplying;
+}
 function parseYandexRouteLink(raw){
  let url;
  try{url=new URL(raw.trim());}catch(error){throw new Error('Вставь корректную ссылку на маршрут Яндекс Карт.');}
@@ -2826,26 +2847,28 @@ function parseYandexRouteLink(raw){
  return points;
 }
 function summarizeRouteLegs(legs){
- if(!Array.isArray(legs)||!legs.length)throw new Error('Сервис не вернул участки маршрута.');
- const values=legs.map((leg,index)=>{
-  const distance=Number(leg&&leg.distance),duration=Number(leg&&leg.duration);
-  if(!Number.isFinite(distance)||distance<0||!Number.isFinite(duration)||duration<0)throw new Error('Сервис вернул некорректные данные участка '+(index+1)+'.');
-  return {distance,duration};
- });
- const totalDistanceMeters=values.reduce((sum,leg)=>sum+leg.distance,0);
- const totalDurationSeconds=values.reduce((sum,leg)=>sum+leg.duration,0);
- const middleLegs=values.length>2?values.slice(1,-1):[];
- const packageDistanceMeters=middleLegs.reduce((sum,leg)=>sum+leg.distance,0);
- const outerDurationSeconds=values.length===1?values[0].duration:values[0].duration+values[values.length-1].duration;
- const totalKm=Math.round((totalDistanceMeters+Number.EPSILON)/100)/10;
- const packageKm=Math.round((packageDistanceMeters+Number.EPSILON)/100)/10;
- return {
-  totalDistanceMeters,packageDistanceMeters,totalDurationSeconds,outerDurationSeconds,
-  totalKm,packageKm,
-  totalMinutes:Math.round(totalDurationSeconds/60),
-  outerDriveMinutes:Math.round(outerDurationSeconds/60)
- };
-}
+  if(!Array.isArray(legs)||!legs.length)throw new Error('Сервис не вернул участки маршрута.');
+  const values=legs.map((leg,index)=>{
+   const distance=Number(leg&&leg.distance),duration=Number(leg&&leg.duration);
+   if(!Number.isFinite(distance)||distance<0||!Number.isFinite(duration)||duration<0)throw new Error('Сервис вернул некорректные данные участка '+(index+1)+'.');
+   return {distance,duration};
+  });
+  const totalDistanceMeters=values.reduce((sum,leg)=>sum+leg.distance,0);
+  const totalDurationSeconds=values.reduce((sum,leg)=>sum+leg.duration,0);
+  const outerLegs=values.length===1?[values[0]]:[values[0],values[values.length-1]];
+  const outerDistanceMeters=outerLegs.reduce((sum,leg)=>sum+leg.distance,0);
+  const outerDurationSeconds=outerLegs.reduce((sum,leg)=>sum+leg.duration,0);
+  const packageDistanceMeters=Math.max(0,totalDistanceMeters-outerDistanceMeters);
+  const totalKm=Math.round((totalDistanceMeters+Number.EPSILON)/100)/10;
+  const outerKm=Math.round((outerDistanceMeters+Number.EPSILON)/100)/10;
+  const packageKm=Math.max(0,Math.round((totalKm-outerKm+Number.EPSILON)*10)/10);
+  return {
+   totalDistanceMeters,outerDistanceMeters,packageDistanceMeters,totalDurationSeconds,outerDurationSeconds,
+   totalKm,outerKm,packageKm,
+   totalMinutes:Math.round(totalDurationSeconds/60),
+   outerDriveMinutes:Math.round(outerDurationSeconds/60)
+  };
+ }
 function medianRouteValue(values){
  const sorted=values.map(Number).sort((a,b)=>a-b);
  if(!sorted.length||sorted.some(value=>!Number.isFinite(value)))throw new Error('Не удалось согласовать значения маршрутизаторов.');
@@ -2938,28 +2961,32 @@ async function fetchBRouterRoute(points,requestId){
  return {legs};
 }
 function updateRouteFieldStatuses(){
- const fields=[
-  ['km','kmStatus','Общий пробег'],
-  ['rentalTime','rentalTimeStatus','Время движения по маршруту'],
-  ['outerDrive','outerDriveStatus','Первый + последний участки'],
-  ['packageKm','packageKmStatus','Средние участки маршрута']
- ];
- for(const [key,id,defaultText] of fields){
-  const node=$(id),manual=routeFieldManual[key];
-  node.textContent=manual?'Изменено вручную':routeImported?'По маршруту':defaultText;
-  node.classList.toggle('manual',manual);
-  node.classList.toggle('imported',routeImported&&!manual);
+  const fields=[
+   ['km','kmStatus','Общий пробег'],
+   ['totalDrive','driveTimeStatus','Суммарное время движения по маршруту'],
+   ['outerDrive','outerDriveStatus','Первый + последний участки'],
+   ['outerKm','outerKmStatus','Первый + последний участки']
+  ];
+  for(const [key,id,defaultText] of fields){
+   const node=$(id),manual=routeFieldManual[key];
+   node.textContent=manual?'Изменено вручную':routeImported?'По маршруту':defaultText;
+   node.classList.toggle('manual',manual);
+   node.classList.toggle('imported',routeImported&&!manual);
+  }
+  const tripStatus=$('tripTimeStatus');
+  tripStatus.textContent=tripTimeManual?'Изменено вручную':'Автоматически: время за рулём + время на места';
+  tripStatus.classList.toggle('manual',tripTimeManual);
+  tripStatus.classList.toggle('imported',!tripTimeManual);
+  if(routeImported&&!routeInFlightUrl&&$('routeUrl').value.trim()===lastAppliedRouteLink){
+   const changed=Object.entries(routeFieldManual).filter(([,value])=>value).map(([key])=>({
+    km:'километраж поездки',totalDrive:'время за рулём',outerDrive:'время крайних участков',outerKm:'километраж крайних участков'
+   })[key]);
+   const warnings=routeSpreadCount?' · Расхождения на '+routeSpreadCount+' участках':'';
+   const failed=routeProviderWarning?' · Недоступны: '+routeProviderWarning:'';
+   $('routeStatus').textContent='Маршрут загружен · '+routePointCount+' точек / '+routeLegCount+' участков · '+routeSourceLabel+warnings+failed+(changed.length?' · Изменено вручную: '+changed.join(', '):'');
+   $('routeStatus').className='route-status '+((routeSpreadCount||routeProviderWarning)?'warning':'success');
+  }
  }
- if(routeImported&&!routeInFlightUrl&&$('routeUrl').value.trim()===lastAppliedRouteLink){
-  const changed=Object.entries(routeFieldManual).filter(([,value])=>value).map(([key])=>({
-   km:'километраж',rentalTime:'время аренды',outerDrive:'время крайних участков',packageKm:'километраж абонемента'
-  })[key]);
-  const warnings=routeSpreadCount?' · Расхождения на '+routeSpreadCount+' участках':'';
-  const failed=routeProviderWarning?' · Недоступны: '+routeProviderWarning:'';
-  $('routeStatus').textContent='Маршрут загружен · '+routePointCount+' точек / '+routeLegCount+' участков · '+routeSourceLabel+warnings+failed+(changed.length?' · Изменено вручную: '+changed.join(', '):'');
-  $('routeStatus').className='route-status '+((routeSpreadCount||routeProviderWarning)?'warning':'success');
- }
-}
 function renderRouteLegDetails(legs,comparisons){
  const list=$('routeLegList');
  list.replaceChildren();
@@ -3027,16 +3054,11 @@ async function calculateRouteFromYandexLink(force=false,editVersionAtLink=null){
   applyingRouteValues=true;
   try{
    if(!changedDuringLoad.includes('km'))$('km').value=totals.totalKm.toFixed(1);
-   if(!changedDuringLoad.includes('rentalTime')){
-    $('hours').value=String(Math.floor(totals.totalMinutes/60));
-    $('minutes').value=String(totals.totalMinutes%60);
-   }
-   if(!changedDuringLoad.includes('outerDrive')){
-    $('driveHours').value=String(Math.floor(totals.outerDriveMinutes/60));
-    $('driveMinutes').value=String(totals.outerDriveMinutes%60);
-   }
-   if(!changedDuringLoad.includes('packageKm'))$('helloPackageKm').value=totals.packageKm.toFixed(1);
+   if(!changedDuringLoad.includes('totalDrive'))writeTimePair('driveTime',totals.totalMinutes);
+   if(!changedDuringLoad.includes('outerDrive'))writeTimePair('outerDrive',totals.outerDriveMinutes);
+   if(!changedDuringLoad.includes('outerKm'))$('outerKm').value=totals.outerKm.toFixed(1);
   }finally{applyingRouteValues=false;}
+  if(!tripTimeManual)syncTripTimeFromParts();
   Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=changedDuringLoad.includes(key));
   routeImported=true;
   routePointCount=points.length;
@@ -3063,32 +3085,52 @@ const bonusAmount=(v,cost)=>v.provider==='Anytime'?Math.round(cost*0.10*100)/100
 const effectiveCost=(v,cost)=>v.provider==='Anytime'?Math.round(cost*0.90*100)/100:cost;
 const compactLabel=label=>label.replace(/^Часы: /,'').replace(/^Дни: /,'');
 const priceText=(v,o)=>`${o.status==='подтверждено'?'':'≈ '}${fmtFinalPrice(effectiveCost(v,o.cost))}`;
-function getTrip(){const d=safe($('km').value),h=safe($('hours').value),m=safe($('minutes').value),dh=safe($('driveHours').value),dm=safe($('driveMinutes').value);return {d,t:Math.round(h*60+m),drive:Math.round(dh*60+dm)};}
+function getTrip(){
+ const d=safe($('km').value);
+ const drive=readTimePair('driveTime');
+ const places=readTimePair('places');
+ const t=readTimePair('trip');
+ const outerDrive=readTimePair('outerDrive');
+ const outerKm=safe($('outerKm').value);
+ const park=Math.max(0,t-drive);
+ const packageTime=t-outerDrive;
+ const packageKm=d-outerKm;
+ return {d,t,drive,places,park,outerDrive,outerKm,packageTime,packageKm};
+}
 function calcAll(){
- const {d,t,drive}=getTrip();
- const warn=[], valid=drive<=t&&t>0;
- const par=t-drive;
- const kmInput=$('helloPackageKm'),kmRaw=kmInput.value.trim(),packageKm=kmRaw===''?0:Number(kmRaw);
- const packageTime=par;
- const packageTimeValid=packageTime>0;
- kmInput.max=String(d);
- const kmValid=Number.isFinite(packageKm)&&packageKm>=0&&packageKm<=d&&!kmInput.validity.badInput;
- const mixedValid=kmValid&&packageTimeValid;
- const kmError=$('helloKmError');kmError.hidden=kmValid;kmInput.classList.toggle('errorfield',!kmValid);
-  kmInput.setAttribute('aria-invalid',String(!kmValid));
-  kmError.textContent=!kmValid?'Укажи пробег от 0 до общего километража ('+d.toLocaleString('ru-RU')+' км).':'';
-  if(!kmValid)warn.push('Комбинированные тарифы Hello временно исключены: проверь километраж для абонемента.');
- const waiting=$('parking');waiting.textContent=drive>t?'—':timeText(par);waiting.classList.toggle('invalid',drive>t);
- for(const id of ['driveHours','driveMinutes'])$(id).classList.toggle('errorfield',drive>t);
- if(drive>t)warn.push('Время в дороге не может превышать время аренды. Исправь введённые значения.');
- if(t<=0)warn.push('Укажи продолжительность аренды больше нуля.');
- if(t>2880&&provider!=='Hello')warn.push('Anytime: нет полного набора тарифов для аренды более 48 часов, поэтому этот сервис не участвует в сравнении.');
- if(d>0&&drive===0&&valid)warn.push('Указан пробег, но время в дороге равно нулю. Проверь параметры.');
+  const {d,t,drive,places,park,outerDrive,outerKm,packageTime,packageKm}=getTrip();
+  const warn=[];
+  const valid=t>0&&drive<=t&&t>=drive+places;
+  const outerTimeValid=outerDrive<=drive;
+  const outerKmValid=outerKm<=d;
+  const mixedValid=valid&&outerTimeValid&&outerKmValid&&outerDrive>0&&packageTime>0&&packageKm>=0;
+  const packageTimeOutput=$('packageTime');
+  packageTimeOutput.textContent=packageTime>=0?timeText(packageTime):'—';
+  packageTimeOutput.classList.toggle('invalid',packageTime<0);
+  const packageKmOutput=$('packageKm');
+  packageKmOutput.textContent=packageKm>=0?formatRouteKm(packageKm)+' км':'—';
+  packageKmOutput.classList.toggle('invalid',packageKm<0);
+  for(const id of ['outerDriveHours','outerDriveMinutes'])$(id).classList.toggle('errorfield',!outerTimeValid);
+  $('outerKm').classList.toggle('errorfield',!outerKmValid);
+  const packageErrors=[];
+  if(!outerTimeValid)packageErrors.push('Время первого и последнего участков не может превышать время за рулём.');
+  if(!outerKmValid)packageErrors.push('Километраж первого и последнего участков не может превышать километраж поездки.');
+  if(packageTime<0)packageErrors.push('Время для абонемента не может быть отрицательным.');
+  if(packageKm<0)packageErrors.push('Километраж для абонемента не может быть отрицательным.');
+  const packageError=$('helloPackageError');
+  packageError.hidden=packageErrors.length===0;
+  packageError.textContent=packageErrors.join(' ');
+  if(t<drive+places)warn.push('Время всей поездки не может быть меньше суммы времени за рулём и времени на места.');
+  if(t<=0)warn.push('Укажи продолжительность поездки больше нуля.');
+  if(t>2880&&provider!=='Hello')warn.push('Anytime: нет полного набора тарифов для аренды более 48 часов, поэтому этот сервис не участвует в сравнении.');
+  if(d>0&&drive===0&&valid)warn.push('Указан пробег, но время за рулём равно нулю. Проверь параметры.');
+  if(!outerTimeValid||!outerKmValid)warn.push('Комбинированные тарифы Hello исключены: проверь время и километраж крайних участков.');
+  if(t>drive+places)warn.push('Разница между общей длительностью и суммой движения/времени на местах учитывается как стоянка.');
 
  const results=[];
  if(valid) for(const v of VEHICLES){
   if(v.infoOnly)continue;
-  let opts=v.provider==='Anytime'?anytimeOptions(v,t,d,par,true):helloOptions(v,t,d,par,mixedValid,packageKm);
+  let opts=v.provider==='Anytime'?anytimeOptions(v,t,d,drive,park,true):helloOptions(v,t,d,drive,park,outerDrive,packageTime,packageKm,mixedValid);
   opts.sort((a,b)=>a.cost-b.cost||Number(b.status==='подтверждено')-Number(a.status==='подтверждено'));
   if(opts.length>0)results.push({v,best:opts[0],options:opts});
  }
@@ -3101,7 +3143,7 @@ function calcAll(){
  count.classList.remove('winner'); paymentNote.hidden=true; gross.hidden=true; tariff.hidden=true; winningModel.hidden=true;
  const tariffText=r=>{
   const o=r.best;
-  if(o.mixed)return `Тариф: ${o.label}${o.packageKm>0?` + ${o.packageKm.toLocaleString('ru-RU')} км по абонементу`: ''}`;
+  if(o.mixed)return `Тариф: ${o.label}${o.packageKm>0?` + ${o.packageKm.toLocaleString('ru-RU')} км по абонементу`: ''}${o.extra>0?` + перерасход ${timeText(o.extra)}`:''}`;
   let label=compactLabel(o.label).replace(/^([\d]+) ч \+ /,'$1 ч и ').replace(/^1 сутки \+ /,'1 сутки и ');
   const additions=[];
   if(o.extraKm>0) additions.push(`докупить ${o.extraKm.toLocaleString('ru-RU')} км`);
@@ -3125,7 +3167,7 @@ function calcAll(){
  }else if(overall){showChoice(overall);paymentNote.textContent='Для второго сервиса нет расчёта при этих условиях.';paymentNote.hidden=false;}
  else{count.textContent='Нет подходящих расчётов';}
  $('warning').style.display=warn.length?'':'none';$('warning').textContent=warn.join(' ');
- $('trip').textContent=valid?`${d.toLocaleString('ru-RU')} км · ${timeText(t)} аренды · ${timeText(drive)} в дороге · ${timeText(par)} ожидания`:'';
+ $('trip').textContent=valid?`${d.toLocaleString('ru-RU')} км · ${timeText(t)} вся поездка · ${timeText(drive)} за рулём · ${timeText(places)} на местах`:'';
  const holder=$('results');const expandedPlans=new Set([...holder.querySelectorAll('.car.open .plans')].map(el=>el.id));const expandedServices=new Set([...holder.querySelectorAll('.showmodels[aria-expanded="true"]')].map(el=>el.closest('.serviceboard').classList.contains('hello')?'Hello':'Anytime'));holder.replaceChildren();holder.classList.toggle('single',provider!=='all');
  for(const service of ['Anytime','Hello'].filter(x=>provider==='all'||x===provider)){
   const group=results.filter(r=>r.v.provider===service);
@@ -3150,8 +3192,8 @@ function calcAll(){
    else if(service==='Hello'){
     const mix=r.options.find(o=>o.mixed);
     const note=document.createElement('div');note.className='mixed-compare';
-    if(mix){const mixLabel=document.createElement('span');mixLabel.textContent='Минуты + абонемент';note.append(mixLabel);const val=document.createElement('strong');val.textContent=priceText(pr,mix)+' BYN';note.append(val);const sub=document.createElement('div');sub.className='mixed-small';sub.textContent=compactLabel(mix.label)+(mix.packageKm>0?` · ${mix.packageKm.toLocaleString('ru-RU')} км = ${fmt(mix.kmCharge)} руб`:'');note.append(sub);}
-    else{note.textContent=!mixedValid?'Проверь километраж для абонемента':'Комбинированный тариф недоступен для этих параметров';}
+    if(mix){const mixLabel=document.createElement('span');mixLabel.textContent='Минуты + абонемент';note.append(mixLabel);const val=document.createElement('strong');val.textContent=priceText(pr,mix)+' BYN';note.append(val);const sub=document.createElement('div');sub.className='mixed-small';sub.textContent=compactLabel(mix.label)+(mix.packageKm>0?` · ${mix.packageKm.toLocaleString('ru-RU')} км = ${fmt(mix.kmCharge)} руб`:'')+(mix.extra>0?` · перерасход ${timeText(mix.extra)}`:'');note.append(sub);}
+    else{note.textContent=!mixedValid?'Проверь время и километраж крайних участков':'Комбинированный тариф недоступен для этих параметров';}
     header.append(note);
    }
    const bonus=bonusAmount(pr,best.cost);
@@ -3192,8 +3234,18 @@ function calcAll(){
   holder.append(board);
  }
 }
-const routeInputGroups={km:'km',hours:'rentalTime',minutes:'rentalTime',driveHours:'outerDrive',driveMinutes:'outerDrive',helloPackageKm:'packageKm'};
-for(const [id,key] of Object.entries(routeInputGroups))$(id).addEventListener('input',()=>{markRouteFieldManual(key);calcAll();});
+const routeInputGroups={km:'km',driveTimeHours:'totalDrive',driveTimeMinutes:'totalDrive',outerDriveHours:'outerDrive',outerDriveMinutes:'outerDrive',outerKm:'outerKm'};
+for(const [id,key] of Object.entries(routeInputGroups))$(id).addEventListener('input',()=>{
+ markRouteFieldManual(key);
+ if(key==='totalDrive'){tripTimeManual=false;syncTripTimeFromParts();updateRouteFieldStatuses();}
+ calcAll();
+});
+for(const id of ['placesHours','placesMinutes'])$(id).addEventListener('input',()=>{
+ tripTimeManual=false;syncTripTimeFromParts();updateRouteFieldStatuses();calcAll();
+});
+for(const id of ['tripHours','tripMinutes'])$(id).addEventListener('input',()=>{
+ tripTimeManual=true;updateRouteFieldStatuses();calcAll();
+});
 $('routeCalculate').addEventListener('click',()=>{
  if(routeInputTimer)clearTimeout(routeInputTimer);
  routeInputTimer=null;
@@ -3241,10 +3293,11 @@ $('routeUrl').addEventListener('input',()=>{
 for(const chip of document.querySelectorAll('[data-provider]'))chip.addEventListener('click',()=>{provider=chip.dataset.provider;document.querySelectorAll('[data-provider]').forEach(c=>c.classList.toggle('active',c===chip));calcAll();});
 $('reset').addEventListener('click',()=>{
  $('results').replaceChildren();
- for(const [id,v] of [['km','30'],['hours','2'],['minutes','0'],['driveHours','1'],['driveMinutes','30'],['helloPackageKm','0']])$(id).value=v;
+ for(const [id,v] of [['km','30'],['driveTimeHours','1'],['driveTimeMinutes','30'],['placesHours','0'],['placesMinutes','30'],['tripHours','2'],['tripMinutes','0'],['outerDriveHours','1'],['outerDriveMinutes','30'],['outerKm','30']])$(id).value=v;
+ tripTimeManual=false;syncTripTimeFromParts();
  $('routeUrl').value='';
  if(routeInputTimer)clearTimeout(routeInputTimer);
- routeInputTimer=null;routeRequestId++;routeInFlightUrl='';lastAppliedRouteLink='';routeImported=false;routePointCount=0;routeLegCount=0;routePendingEditVersion=null;routeSourceLabel='';routeSpreadCount=0;routeProviderWarning='';applyingRouteValues=false;
+ routeInputTimer=null;routeRequestId++;routeInFlightUrl='';lastAppliedRouteLink='';routeImported=false;routePointCount=0;routeLegCount=0;routePendingEditVersion=null;routeSourceLabel='';routeSpreadCount=0;routeProviderWarning='';applyingRouteValues=false;tripTimeManual=false;
  Object.keys(routeFieldManual).forEach(key=>routeFieldManual[key]=false);
  $('routeStatus').textContent=ROUTE_STATUS_DEFAULT;$('routeStatus').className='route-status';
  $('routeDetails').hidden=true;$('routeLegList').replaceChildren();
