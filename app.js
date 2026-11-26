@@ -2861,7 +2861,7 @@ function summarizeRouteLegs(legs){
   const packageDistanceMeters=Math.max(0,totalDistanceMeters-outerDistanceMeters);
   const totalKm=Math.round((totalDistanceMeters+Number.EPSILON)/100)/10;
   const outerKm=Math.round((outerDistanceMeters+Number.EPSILON)/100)/10;
-  const packageKm=Math.round((packageDistanceMeters+Number.EPSILON)/100)/10;
+  const packageKm=Math.max(0,Math.round((totalKm-outerKm+Number.EPSILON)*10)/10);
   return {
    totalDistanceMeters,outerDistanceMeters,packageDistanceMeters,totalDurationSeconds,outerDurationSeconds,
    totalKm,outerKm,packageKm,
@@ -3193,7 +3193,7 @@ function calcAll(){
     const mix=r.options.find(o=>o.mixed);
     const note=document.createElement('div');note.className='mixed-compare';
     if(mix){const mixLabel=document.createElement('span');mixLabel.textContent='Минуты + абонемент';note.append(mixLabel);const val=document.createElement('strong');val.textContent=priceText(pr,mix)+' BYN';note.append(val);const sub=document.createElement('div');sub.className='mixed-small';sub.textContent=compactLabel(mix.label)+(mix.packageKm>0?` · ${mix.packageKm.toLocaleString('ru-RU')} км = ${fmt(mix.kmCharge)} руб`:'')+(mix.extra>0?` · перерасход ${timeText(mix.extra)}`:'');note.append(sub);}
-    else{note.textContent=!mixedValid?'Проверь километраж для абонемента':'Комбинированный тариф недоступен для этих параметров';}
+    else{note.textContent=!mixedValid?'Проверь время и километраж крайних участков':'Комбинированный тариф недоступен для этих параметров';}
     header.append(note);
    }
    const bonus=bonusAmount(pr,best.cost);
