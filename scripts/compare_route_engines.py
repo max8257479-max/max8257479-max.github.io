@@ -187,6 +187,13 @@ def main():
                 leg = result[name]["legs"][index]
                 row[name + "_km"] = round(leg["distance_km"], 2)
                 row[name + "_minutes"] = round(leg["duration_s"] / 60)
+            # Match the calculator's three-engine median: OSRM, Valhalla, BRouter car-fast.
+            median_engines = [name for name in ("osrm", "valhalla", "brouter_fast") if name in result]
+            if len(median_engines) == 3:
+                distances = sorted(result[name]["legs"][index]["distance_km"] for name in median_engines)
+                durations = sorted(result[name]["legs"][index]["duration_s"] for name in median_engines)
+                row["median_3_km"] = round(distances[1], 2)
+                row["median_3_minutes"] = round(durations[1] / 60)
             result["comparison"].append(row)
 
     print(json.dumps({"results": result, "errors": errors}, ensure_ascii=False, indent=2))
