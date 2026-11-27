@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Compare the supplied six-point route on public Valhalla and OSRM endpoints."""
 import json
+import os
 import math
 import sys
 import time
@@ -168,6 +169,53 @@ def brouter_route(profile):
     return {"http_status": 200, "profile": profile, "legs": result}
 
 
+
+def yandex_route(api_key, traffic_mode=None):
+    """Call Yandex Router API for the same six points; never print or persist the API key."""
+    params = {
+        "apikey": api_key,
+        "waypoints": "|".join(f"{lat},{lon}" for lat, lon in POINTS),
+        "mode": "driving",
+    }
+    if traffic_mode is not None:
+        params["traffic"] = traffic_mode
+    request = Request(
+        "https://api.routing.yandex.net/v2/route?" + urlencode(params),
+        headers={"User-Agent": "AnytimeHelloCalculator/1.0"},
+    )
+    try:
+        status, _, data = fetch_json(request, timeout=45)
+    except HTTPError as exc:
+        raise RuntimeError(f"Yandex HTTP {exc.code}") from None
+    route = data.get("route") or {}
+    legs = route.get("legs") or []
+    if len(legs) != len(POINTS) - 1:
+        raise RuntimeError(
+            f"Yandex expected 5 legs, received {len(legs)}; "
+            f"traffic_type={data.get('traffic_type')!r}"
+        )
+    result = []
+    for index, leg in enumerate(legs):
+        if leg.get("status") != "OK":
+            raise RuntimeError(f"Yandex leg {index} status is not OK")
+        steps = leg.get("steps") or []
+        distance_m = sum(float(step.get("length", 0)) for step in steps)
+        duration_s = sum(float(step.get("duration", 0)) for step in steps)
+        if not math.isfinite(distance_m) or distance_m < 0 or not math.isfinite(duration_s) or duration_s < 0:
+            raise RuntimeError(f"Yandex leg {index} returned invalid metrics")
+        result.append({
+            "from": index,
+            "to": index + 1,
+            "distance_km": distance_m / 1000,
+            "duration_s": duration_s,
+        })
+    return {
+        "http_status": status,
+        "traffic_type": data.get("traffic_type"),
+        "legs": result,
+    }
+
+
 def main():
     result = {}
     errors = {}
@@ -178,8 +226,20 @@ def main():
             errors[name] = f"{type(exc).__name__}: {exc}"
         time.sleep(1.2)
 
+    api_key = os.environ.get("YANDEX_ROUTER_API_KEY", "").strip()
+    if api_key:
+        for name, traffic_mode in (("yandex_default", None), ("yandex_no_traffic", "disabled")):
+            try:
+                result[name] = yandex_route(api_key, traffic_mode)
+            except (HTTPError, URLError, TimeoutError, OSError, ValueError, RuntimeError) as exc:
+                # Do not expose the API key or request URL in logs.
+                errors[name] = f"{type(exc).__name__}: {exc}"
+            time.sleep(1.2)
+    else:
+        errors["yandex"] = "Skipped: add YANDEX_ROUTER_API_KEY as a GitHub Actions secret."
+
     if len(result) >= 2:
-        engine_names = [name for name in ("valhalla", "osrm", "brouter_fast", "brouter_eco") if name in result]
+        engine_names = [name for name in ("valhalla", "osrm", "brouter_fast", "brouter_eco", "yandex_default", "yandex_no_traffic") if name in result]
         result["comparison"] = []
         for index in range(len(POINTS) - 1):
             row = {"segment": f"{index}→{index + 1}"}
@@ -187,6 +247,13 @@ def main():
                 leg = result[name]["legs"][index]
                 row[name + "_km"] = round(leg["distance_km"], 2)
                 row[name + "_minutes"] = round(leg["duration_s"] / 60)
+            # Match the calculator's live three-engine median: OSRM, Valhalla, BRouter car-eco.
+            median_engines = [name for name in ("osrm", "valhalla", "brouter_eco") if name in result]
+            if len(median_engines) == 3:
+                distances = sorted(result[name]["legs"][index]["distance_km"] for name in median_engines)
+                durations = sorted(result[name]["legs"][index]["duration_s"] for name in median_engines)
+                row["calculator_median_km"] = round(distances[1], 2)
+                row["calculator_median_minutes"] = round(durations[1] / 60)
             result["comparison"].append(row)
 
     print(json.dumps({"results": result, "errors": errors}, ensure_ascii=False, indent=2))
