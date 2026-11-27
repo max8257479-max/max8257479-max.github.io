@@ -141,7 +141,9 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-      - name: Compare the supplied six-point route on both public engines
+      - name: Compare the supplied six-point route on public engines and optional Yandex Router API
+        env:
+          YANDEX_ROUTER_API_KEY: ${{ secrets.YANDEX_ROUTER_API_KEY }}
         run: python scripts/compare_route_engines.py
 
   update:
